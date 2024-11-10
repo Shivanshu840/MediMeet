@@ -8,7 +8,14 @@
     "./code": "./src/code.tsx",
     "./input": "./src/input.tsx",
     "./badge": "./src/badge.tsx",
-    "./alert": "./src/alert.tsx"
+    "./alert": "./src/alert.tsx",
+    "./label": "./src/label.tsx",
+    "./progress":"./src/progress.tsx",
+    "./calender": "./src/calender.tsx",
+    "./select": "./src/select.tsx",
+    "./popover": "./src/popover.tsx",
+    "./radio-group": "./src/radio-group.tsx",
+    "./dialog": "./src/dialog.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

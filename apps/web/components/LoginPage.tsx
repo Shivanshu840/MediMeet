@@ -4,20 +4,22 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@repo/ui/button"
 import { Input } from "@repo/ui/input"
-import { Stethoscope } from "lucide-react"
+import { Stethoscope, AlertCircle } from "lucide-react"
 import { signIn } from 'next-auth/react'
+import Image from 'next/image'
 
-export default function Component() {
+export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const router = useRouter()
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
     setIsLoading(true)
+    setErrorMessage('')
 
-    
     const result = await signIn('credentials', {
       redirect: false, 
       username,
@@ -28,42 +30,69 @@ export default function Component() {
 
     if (result?.error) {
       console.error(result.error)
-          
+      setErrorMessage('Invalid username or password. Please try again.')
     } else {
-      router.push('/') 
+      router.push('/home') 
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true)
+    setErrorMessage('')
+
+    try {
+      const result = await signIn("google", { 
+        callbackUrl: '/home',
+        prompt: 'select_account'
+      })
+      
+      if (result?.error) {
+        console.error(result.error)
+        setErrorMessage('Failed to sign in with Google. Please try again.')
+      }
+      // Successful sign-in will be handled by the callbackUrl
+    } catch (error) {
+      console.error(error)
+      setErrorMessage('An unexpected error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-green-50/50 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
-        <div className="text-center space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">Medi Meet</h1>
-          <p className="text-muted-foreground">
-           Unlock Your Path to Wellness with Medi Meet's Consultancy Platform
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40 flex items-center justify-center p-4">
+      <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
+        <div className="text-center space-y-4 lg:order-2">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Medi Meet</h1>
+          <p className="text-sm md:text-base text-zinc-400">
+            Unlock Your Path to Wellness with Medi Meet's Consultancy Platform
           </p>
-          <div className="relative h-[300px] w-full">
-            <img
-              alt="Student studying illustration"
+          <div className="relative h-[200px] md:h-[300px] w-full">
+            <Image
+              alt="Doctor consultation illustration"
               src="/placeholder.svg?height=300&width=400"
-              className="object-contain"
-              style={{
-                aspectRatio: "400/300",
-                objectFit: "contain",
-              }}
+              width={400}
+              height={300}
+              className="object-contain w-full h-full"
             />
           </div>
         </div>
-        <div className="bg-white p-8 rounded-lg shadow-sm space-y-6">
-          <div className="flex justify-center mb-8">
+        <div className="bg-zinc-900/80 p-6 md:p-8 rounded-lg shadow-lg space-y-6 backdrop-blur-sm lg:order-1">
+          <div className="flex justify-center mb-6 md:mb-8">
             <div className="flex items-center gap-2">
-              <Stethoscope className="h-6 w-6 text-green-600" />
-              <span className="text-xl font-semibold">MEDI MEET</span>
+              <Stethoscope className="h-5 w-5 md:h-6 md:w-6 text-emerald-500" />
+              <span className="text-lg md:text-xl font-semibold text-white">MEDI MEET</span>
             </div>
           </div>
+          {errorMessage && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-3 py-2 rounded flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <p className="text-xs md:text-sm">{errorMessage}</p>
+            </div>
+          )}
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm text-muted-foreground" htmlFor="email">
+              <label className="text-xs md:text-sm text-zinc-400" htmlFor="email">
                 Username or email
               </label>
               <Input
@@ -76,11 +105,12 @@ export default function Component() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm md:text-base"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm text-muted-foreground" htmlFor="password">
+                <label className="text-xs md:text-sm text-zinc-400" htmlFor="password">
                   Password
                 </label>
               </div>
@@ -90,43 +120,35 @@ export default function Component() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm md:text-base"
               />
               <Button
+                type="button"
                 variant="link"
-                className="px-0 text-green-600 font-normal text-sm"
+                className="px-0 text-emerald-400 font-normal text-xs md:text-sm"
                 disabled={isLoading}
               >
                 Forgot password?
               </Button>
             </div>
-            <Button className="w-full bg-slate-800 hover:bg-slate-900" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm md:text-base" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-zinc-700" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">or</span>
+              <span className="bg-zinc-900 px-2 text-zinc-400">or</span>
             </div>
           </div>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            className="w-full border-zinc-700 text-white hover:bg-zinc-800 text-sm md:text-base"
             disabled={isLoading}
-            className="inline-flex w-full items-center justify-center rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50"
-            onClick={async () => {
-              setIsLoading(true); 
-              const result = await signIn("google", { redirect: false });
-              setIsLoading(false);
-    
-              if (result?.error) {
-                console.error(result.error);
-              } else {
-                router.push('/');
-              }
-
-            }}
+            onClick={handleGoogleSignIn}
           >
             <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4">
               <path
@@ -147,12 +169,18 @@ export default function Component() {
               />
             </svg>
             Sign in with Google
-          </button>
-          <div className="text-center text-sm">
+          </Button>
+          <div className="text-center text-xs md:text-sm text-zinc-400">
             Are you new?{" "}
-            <Button variant="link" className="text-green-600 font-normal" disabled={isLoading} onClick={() => {
-              router.push("/signup")
-            }}>
+            <Button 
+              type="button"
+              variant="link" 
+              className="text-emerald-400 font-normal" 
+              disabled={isLoading} 
+              onClick={() => {
+                router.push("/signup")
+              }}
+            >
               Create an Account
             </Button>
           </div>

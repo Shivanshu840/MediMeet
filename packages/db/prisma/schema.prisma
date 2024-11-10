@@ -19,6 +19,25 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  phone         String?
+  address       String?
+  gender        String?
+  dob           String?
+}
+
+model Doctor {
+  id            String @id @default(uuid())
+  firstName     String?
+  lastName      String?
+  email         String? @unique
+  password      String?
+  spiciality    String?
+  experience    String?
+  education     String?
+  fee           String?
+  address       String?
+  about         String?
+  image         String?
 }
 
 model Account {

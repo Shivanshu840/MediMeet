@@ -1,13 +1,15 @@
 'use client'
-
 import { useState } from 'react';
 import { Stethoscope } from "lucide-react";
-import prisma from "@repo/db/clients";
 import { useRouter } from 'next/navigation'
+import { Input } from "@repo/ui/input"
+import { Label } from '@repo/ui/label';
+import { Button } from '@repo/ui/button';
 import CheckUser from './Present';
 
+
 export default function SignupPage() {
-  const router = useRouter();
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -36,35 +38,35 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-green-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-8 bg-green-100 relative hidden md:block">
-          <h2 className="text-3xl font-bold mb-4 text-slate-800">Join Medi Meet</h2>
-          <p className="text-slate-600 mb-8">
-            Start your journey to better health by scheduling your consultancy with Medi Meet’s Healthcare Platform.
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40 flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center bg-zinc-900/80 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm">
+        <div className="p-6 lg:p-8 bg-emerald-900/20 relative hidden lg:block">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-white">Join Medi Meet</h2>
+          <p className="text-sm lg:text-base text-zinc-300 mb-8">
+            Start your journey to better health by scheduling your consultancy with Medi Meet's Healthcare Platform.
           </p>
-          <div className="relative h-[400px]">
+          <div className="relative h-[200px] lg:h-[400px]">
             <img
               src="/placeholder.svg?height=400&width=400"
-              alt="Students collaborating"
-              className="object-contain"
+              alt="Doctor consultation illustration"
+              className="object-contain w-full h-full"
             />
           </div>
         </div>
-        <div className="p-8 space-y-6">
-          <div className="flex justify-center mb-8">
+        <div className="p-6 lg:p-8 space-y-6">
+          <div className="flex justify-center mb-6 lg:mb-8">
             <div className="flex items-center gap-2">
-              <Stethoscope className="h-8 w-8 text-green-600" />
-              <span className="text-2xl font-semibold text-slate-800">MEDI MEET</span>
+              <Stethoscope className="h-6 w-6 lg:h-8 lg:w-8 text-emerald-500" />
+              <span className="text-xl lg:text-2xl font-semibold text-white">MEDI MEET</span>
             </div>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="firstName">
+                <Label htmlFor="firstName" className="text-sm text-zinc-300">
                   First Name
-                </label>
-                <input
+                </Label>
+                <Input
                   id="firstName"
                   name="firstName"
                   placeholder="John"
@@ -75,14 +77,14 @@ export default function SignupPage() {
                   disabled={isLoading}
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700" htmlFor="lastName">
+                <Label htmlFor="lastName" className="text-sm text-zinc-300">
                   Last Name
-                </label>
-                <input
+                </Label>
+                <Input
                   id="lastName"
                   name="lastName"
                   placeholder="Doe"
@@ -93,15 +95,15 @@ export default function SignupPage() {
                   disabled={isLoading}
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="email">
+              <Label htmlFor="email" className="text-sm text-zinc-300">
                 Email
-              </label>
-              <input
+              </Label>
+              <Input
                 id="email"
                 name="email"
                 placeholder="john.doe@example.com"
@@ -112,49 +114,54 @@ export default function SignupPage() {
                 disabled={isLoading}
                 value={formData.email}
                 onChange={handleInputChange}
-                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="password">
+              <Label htmlFor="password" className="text-sm text-zinc-300">
                 Password
-              </label>
-              <input
+              </Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 disabled={isLoading}
                 value={formData.password}
                 onChange={handleInputChange}
-                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-sm"
               />
             </div>
-            <button
+            <Button
               type="submit"
-              className="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm"
               disabled={isLoading}
-              onClick={()=>{
-                CheckUser(formData);
+              onClick={() => {
+                CheckUser(formData)
               }}
             >
               {isLoading ? "Signing up..." : "Sign up"}
-            </button>
+            </Button>
           </form>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-300" />
+              <span className="w-full border-t border-zinc-700" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-slate-500">or</span>
+              <span className="bg-zinc-900 px-2 text-zinc-500">or</span>
             </div>
           </div>
-          <div className="text-center text-sm text-slate-600">
+          <div className="text-center text-xs sm:text-sm text-zinc-400">
             Already have an account?{" "}
-            <button className="inline-flex items-center justify-center text-sm font-medium text-green-600 hover:text-green-700" disabled={isLoading} onClick={()=>{
+            <Button
+              variant="link"
+              className="text-emerald-400 hover:text-emerald-300 text-xs sm:text-sm"
+              disabled={isLoading}
+              onClick={() => {
                 router.push("/signin")
-            }}>
+              }}
+            >
               Sign in
-            </button>
+            </Button>
           </div>
         </div>
       </div>
