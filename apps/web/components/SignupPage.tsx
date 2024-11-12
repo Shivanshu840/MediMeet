@@ -30,11 +30,28 @@ export default function SignupPage() {
     event.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
-    console.log('Form submitted:', formData)
-    setTimeout(() => {
+    try {
+      
+      const response = await fetch('/api/auth/userAuth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to sign up')
+      }
+
+      
+      router.push('/signin')
+    } catch (error) {
+      console.error('Error during signup:', error)
+      
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -137,9 +154,6 @@ export default function SignupPage() {
               type="submit"
               className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm"
               disabled={isLoading}
-              onClick={() => {
-                CheckUser(formData)
-              }}
             >
               {isLoading ? "Signing up..." : "Sign up"}
             </Button>
