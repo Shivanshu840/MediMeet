@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { Input } from "@repo/ui/input"
 import { Label } from '@repo/ui/label';
 import { Button } from '@repo/ui/button';
-import CheckUser from './Present';
 import Image from 'next/image'
 
 export default function SignupPage() {
