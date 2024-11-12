@@ -29,11 +29,11 @@ export default async function checkUser(props: CheckUserProps) {
                 password: props.password, // Make sure password is hashed before saving
             },
             select: {
-                userId: true,
+                id: true,
             },
         });
 
-        return { message: "User successfully created", success: true, userId: user.userId };
+        return { message: "User successfully created", success: true, userId: user.id };
     } catch (error) {
         console.error("Error creating user:", error);
         return { message: "Error creating user", success: false };

@@ -65,7 +65,7 @@ export const authOption = {
         });
       }
 
-      // Ensure user.id is set to the database ID
+      
       user.id = dbUser.id;
 
       return true;
@@ -74,7 +74,7 @@ export const authOption = {
     async jwt({ token, user, account }: any) {
       if (user) {
         token.user = {
-          id: user.id, // This will now be the database ID for both Credentials and Google
+          id: user.id, 
           email: user.email,
           name: user.name,
           image: user.image,

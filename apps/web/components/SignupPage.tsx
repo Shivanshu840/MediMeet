@@ -6,7 +6,7 @@ import { Input } from "@repo/ui/input"
 import { Label } from '@repo/ui/label';
 import { Button } from '@repo/ui/button';
 import CheckUser from './Present';
-
+import Image from 'next/image'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -46,9 +46,11 @@ export default function SignupPage() {
             Start your journey to better health by scheduling your consultancy with Medi Meet's Healthcare Platform.
           </p>
           <div className="relative h-[200px] lg:h-[400px]">
-            <img
-              src="/placeholder.svg?height=400&width=400"
+            <Image
+              src="/placeholder.svg"
               alt="Doctor consultation illustration"
+              width={400}
+              height={400}
               className="object-contain w-full h-full"
             />
           </div>
