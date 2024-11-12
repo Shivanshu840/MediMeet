@@ -50,12 +50,12 @@ export const authOption = {
   secret: process.env.JWT_SECRET || "secret",
   callbacks: {
     async signIn({ user, account, profile }: any) {
-      const existingUser = await prisma.user.findUnique({
+      let dbUser = await prisma.user.findUnique({
         where: { email: user.email },
       });
 
-      if (!existingUser) {
-        await prisma.user.create({
+      if (!dbUser) {
+        dbUser = await prisma.user.create({
           data: {
             email: user.email,
             firstName: profile.given_name,
@@ -65,13 +65,16 @@ export const authOption = {
         });
       }
 
+      // Ensure user.id is set to the database ID
+      user.id = dbUser.id;
+
       return true;
     },
 
-    async jwt({ token, user }: any) {
+    async jwt({ token, user, account }: any) {
       if (user) {
         token.user = {
-          id: user.id,
+          id: user.id, // This will now be the database ID for both Credentials and Google
           email: user.email,
           name: user.name,
           image: user.image,

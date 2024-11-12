@@ -23,6 +23,8 @@ import {
   X,
   Menu
 } from "lucide-react"
+import doc12 from '../public/doc13.png'
+import hosital from '../public/hospital.jpg'
 import { signOut } from 'next-auth/react'
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
@@ -210,11 +212,11 @@ export default function Dashboard({ user }: DashboardProps) {
                   <h3 className="text-lg font-semibold mb-4">Upcoming appointment</h3>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-2">
                     <Image
-                      src="/placeholder.svg?height=200&width=300"
+                      src={hosital}
                       alt="Hospital"
                       width={300}
                       height={200}
-                      className="w-full sm:w-32 h-24 rounded-lg object-cover"
+                      className="w-full outline-none shadow-lg shadow-gray-400 border-none sm:w-32 h-24 rounded-lg object-cover"
                     />
                     <div>
                       <h4 className="font-medium">Manggis ST Hospital</h4>
@@ -224,17 +226,17 @@ export default function Dashboard({ user }: DashboardProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Image
-                    src="/placeholder.svg?height=48&width=48"
+                    src={doc12}
                     alt="Doctor"
-                    width={48}
-                    height={48}
+                    width={60}
+                    height={60}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
                     <p className="font-medium">Dr. Emilia Winson</p>
                     <p className="text-sm text-zinc-600">Physiotherapy</p>
                   </div>
-                  <Button className="ml-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
+                  <Button className="ml-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-200" onClick={() => {router.push("/reciever")}}>
                     <VideoIcon className="h-4 w-4 mr-2" />
                     Video call
                   </Button>
@@ -243,7 +245,7 @@ export default function Dashboard({ user }: DashboardProps) {
               <div className="flex items-center gap-4 text-sm text-zinc-600">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" />
-                  14 Mar 2022
+                  28 Nov 2024
                 </div>
                 <div>09:00 pm</div>
               </div>

@@ -23,6 +23,7 @@ model User {
   address       String?
   gender        String?
   dob           String?
+  health        Health?
 }
 
 model Doctor {
@@ -74,3 +75,26 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+
+  model Health {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  heartRate         Int?
+  bloodPressure     String?
+  bloodOxygen       Float?
+  sleepHours        Float?
+  weight            Float?
+  height            Float?
+  bmi               Float?
+  allergies         String?
+  medications       String?
+  chronicConditions String?
+  lastCheckup       DateTime?
+  nextCheckup       DateTime?
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+

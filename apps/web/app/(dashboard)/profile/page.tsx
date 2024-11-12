@@ -1,5 +1,3 @@
-// pages/profile/index.js
-
 import { getServerSession } from "next-auth/next"
 import { authOption } from "../../lib/action"
 import ProfilePage from "../../../components/profile"
@@ -13,18 +11,7 @@ export default async function Profile() {
     redirect("/signin")
     return null
   }
- const user = session.user
   return (
-    <ProfilePage
-      initialUserData={{
-        email: user?.email || "",
-        name: user?.name || '',
-        phone: user?.phone || '',
-        address: user?.address || '',
-        gender: user?.gender || '',
-        birthday: user?.birthday || '',
-        image: user?.image || ''
-      }}
-    />
+    <ProfilePage/>
   )
 }

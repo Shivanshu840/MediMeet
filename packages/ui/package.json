@@ -15,7 +15,9 @@
     "./select": "./src/select.tsx",
     "./popover": "./src/popover.tsx",
     "./radio-group": "./src/radio-group.tsx",
-    "./dialog": "./src/dialog.tsx"
+    "./dialog": "./src/dialog.tsx",
+    "./textarea":"./src/textarea.tsx"
+
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

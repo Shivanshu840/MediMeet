@@ -8,6 +8,7 @@ type ConnectionType = 'sender' | 'receiver'
 interface WebSocketConnection {
   type: ConnectionType | null
   partnerId: string | null
+  socket: WebSocket
 }
 
 interface WebSocketMessage {
@@ -33,13 +34,14 @@ app.get('/ws', async (c) => {
   const connectionId = nanoid()
   let connection: WebSocketConnection = {
     type: null,
-    partnerId: null
+    partnerId: null,
+    socket: server
   }
 
   connections.set(connectionId, connection)
 
   server.addEventListener('message', (event) => {
-    handleMessage(connectionId, event.data as string, server)
+    handleMessage(connectionId, event.data as string)
   })
 
   server.addEventListener('close', () => {
@@ -52,7 +54,7 @@ app.get('/ws', async (c) => {
   })
 })
 
-function handleMessage(connectionId: string, data: string, socket: WebSocket) {
+function handleMessage(connectionId: string, data: string) {
   try {
     const message = JSON.parse(data) as WebSocketMessage
     const connection = connections.get(connectionId)
@@ -66,8 +68,7 @@ function handleMessage(connectionId: string, data: string, socket: WebSocket) {
       if (connection.partnerId) {
         const partnerConnection = connections.get(connection.partnerId)
         if (partnerConnection) {
-          // Instead of sending directly, we return the message to be sent
-          return JSON.stringify(message)
+          partnerConnection.socket.send(JSON.stringify(message))
         }
       }
     }
@@ -82,6 +83,7 @@ function handleClose(connectionId: string) {
     const partnerConnection = connections.get(connection.partnerId)
     if (partnerConnection) {
       partnerConnection.partnerId = null
+      partnerConnection.socket.send(JSON.stringify({ type: 'partnerDisconnected' }))
     }
   }
   connections.delete(connectionId)
@@ -98,6 +100,11 @@ function findAndSetPartner(connectionId: string) {
         !potentialPartner.partnerId) {
       connection.partnerId = id
       potentialPartner.partnerId = connectionId
+      
+      // Notify both partners that they've been connected
+      connection.socket.send(JSON.stringify({ type: 'partnerConnected', partnerType: potentialPartner.type }))
+      potentialPartner.socket.send(JSON.stringify({ type: 'partnerConnected', partnerType: connection.type }))
+      
       break
     }
   }

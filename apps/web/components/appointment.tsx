@@ -12,6 +12,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Calendar } from "@repo/ui/calender"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover"
+import doc5 from '../public/doc5.png'
+import doc6 from '../public/doc6.png'
+import doc7 from '../public/doc7.png'
 
 export default function NewAppointment() {
     const router = useRouter()
@@ -19,9 +22,9 @@ export default function NewAppointment() {
     const [selectedDoctor, setSelectedDoctor] = useState("")
   
     const doctors = [
-      { id: '1', name: 'Dr. Emilia Winson', specialty: 'Physiotherapy', image: '/placeholder.svg?height=48&width=48' },
-      { id: '2', name: 'Dr. John Smith', specialty: 'Cardiology', image: '/placeholder.svg?height=48&width=48' },
-      { id: '3', name: 'Dr. Sarah Johnson', specialty: 'Neurology', image: '/placeholder.svg?height=48&width=48' },
+      { id: '1', name: 'Dr. Emilia Winson', specialty: 'Physiotherapy', image:doc5 },
+      { id: '2', name: 'Dr. John Smith', specialty: 'Cardiology', image:doc6 },
+      { id: '3', name: 'Dr. Sarah Johnson', specialty: 'Neurology', image:doc7},
     ]
   
     const handleSubmit = (event: React.FormEvent) => {
