@@ -27,6 +27,7 @@ import doc12 from '../public/doc13.png'
 import hosital from '../public/hospital.jpg'
 import { signOut } from 'next-auth/react'
 
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
 
 interface User {
@@ -113,7 +114,7 @@ export default function Dashboard({ user }: DashboardProps) {
             <Calendar className="h-5 w-5" />
             <span className="ml-2 lg:hidden">Calendar</span>
           </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-400 w-full">
+          <Button variant="ghost" size="icon" className="text-zinc-400 w-full" onClick={() => router.push("/health")}>
             <Heart className="h-5 w-5" />
             <span className="ml-2 lg:hidden">Health</span>
           </Button>

@@ -1,10 +1,10 @@
 
-import Receiver from '../../../components/Reciever'
+import{Receiver2} from '../../../components/Reciever'
 export default function Receive(){
 
     return (
         <div>
-            <Receiver/>
+            <Receiver2/>
         </div>
     )
 }

@@ -1,11 +1,11 @@
-import  Sender  from "../../../components/Sender";
+import  {Sender2}  from "../../../components/Sender";
 
 
 export default function SenderSide(){
 
     return (
         <div>
-            <Sender/>
+            <Sender2/>
         </div>
     )
 }

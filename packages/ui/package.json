@@ -16,7 +16,10 @@
     "./popover": "./src/popover.tsx",
     "./radio-group": "./src/radio-group.tsx",
     "./dialog": "./src/dialog.tsx",
-    "./textarea":"./src/textarea.tsx"
+    "./textarea":"./src/textarea.tsx",
+    "./use-toast": "./src/use-toast.tsx",
+    "./toaster": "./src/toaster.tsx",
+    "./toast": "./src/toast.tsx"
 
   },
   "scripts": {
