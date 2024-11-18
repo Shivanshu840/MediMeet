@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     })
 
     const appointmentsWithHealth = await Promise.all(
-      appointments.map(async (appointment) => {
+      appointments.map(async (appointment:any) => {
         const health = await prisma.health.findUnique({
           where: {
             userId: appointment.user.id
