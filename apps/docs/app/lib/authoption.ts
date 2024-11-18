@@ -23,12 +23,6 @@ export const authOptionDoctor = {
             firstName: profile.given_name,
             lastName: profile.family_name,
             image: profile.picture,
-            spiciality: "", // You might want to set this during onboarding
-            experience: "",
-            education: "",
-            fee: "",
-            address: "",
-            about: "",
           },
         });
       }
