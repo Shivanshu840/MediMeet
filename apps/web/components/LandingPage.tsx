@@ -4,13 +4,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@repo/ui/button"
 import img from '../public/doctor.jpg'
 
 export default function LandingPage() {
   const { data: session } = useSession()
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40">
@@ -48,7 +49,7 @@ export default function LandingPage() {
                 Log in
               </Link>
             )}
-            <Button className="bg-white text-zinc-900 hover:bg-zinc-200" onClick={() => redirect("http://localhost:3001")}>
+            <Button className="bg-white text-zinc-900 hover:bg-zinc-200" onClick={() => router.push("https://medi-meet-docs-rho.vercel.app")}>
               Admin Panel
             </Button>
           </div>
