@@ -19,7 +19,9 @@
     "./textarea":"./src/textarea.tsx",
     "./use-toast": "./src/use-toast.tsx",
     "./toaster": "./src/toaster.tsx",
-    "./toast": "./src/toast.tsx"
+    "./toast": "./src/toast.tsx",
+    "./avatar": "./src/avatar.tsx",
+    "./tabs": "./src/tabs.tsx"
 
   },
   "scripts": {

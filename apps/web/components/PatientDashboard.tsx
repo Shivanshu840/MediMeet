@@ -1,33 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from "@repo/ui/button"
-import { Card } from "@repo/ui/card"
+import { Card, CardContent } from "@repo/ui/card"
 import { Progress } from "@repo/ui/progress"
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  Home,
-  LayoutDashboard,
-  LogOut,
-  Plus,
-  Search,
-  Settings,
-  User2,
-  VideoIcon,
-  Bell,
-  X,
-  Menu
-} from "lucide-react"
-import doc12 from '../public/doc13.png'
-import hosital from '../public/hospital.jpg'
+import { Calendar, ChevronLeft, ChevronRight, Heart, Home, LayoutDashboard, LogOut, Plus, Search, Settings, User2, VideoIcon, Bell, X, Menu } from 'lucide-react'
 import { signOut } from 'next-auth/react'
-
-
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
 
 interface User {
@@ -40,6 +20,18 @@ interface User {
   address?: string | null
 }
 
+interface Appointment {
+  id: string
+  title: string
+  dateTime: string
+  doctor: {
+    firstName: string
+    lastName: string
+    spiciality: string
+    image: string
+  }
+}
+
 interface DashboardProps {
   user: User
 }
@@ -48,10 +40,12 @@ export default function Dashboard({ user }: DashboardProps) {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [activeView, setActiveView] = useState('monthly')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const router = useRouter()
-
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
@@ -73,6 +67,52 @@ export default function Dashboard({ user }: DashboardProps) {
     router.push('/signin')
   }
 
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+
+  const isAppointmentActive = (appointmentTime: string) => {
+    const now = new Date();
+    const appTime = new Date(appointmentTime);
+    const timeDifference = now.getTime() - appTime.getTime();
+    return timeDifference >= 0 && timeDifference <= 90 * 60 * 1000; // 1 hour and 30 minutes
+  };
+
+  const isAppointmentStartingSoon = (appointmentTime: string) => {
+    const now = new Date();
+    const appTime = new Date(appointmentTime);
+    const timeDifference = appTime.getTime() - now.getTime();
+    return timeDifference > 0 && timeDifference <= 2 * 60 * 1000; // 2 minutes before start
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date())
+    }, 60000); 
+
+    return () => clearInterval(timer);
+  }, [])
+
+  useEffect(() => {
+    async function fetchAppointments() {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await fetch('/api/auth/appointment')
+        if (!response.ok) {
+          throw new Error('Failed to fetch appointments')
+        }
+        const data = await response.json()
+        setAppointments(data)
+      } catch (err) {
+        setError('Error fetching appointments. Please try again later.')
+        console.error('Error fetching appointments:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAppointments()
+  }, [])
+
   const monthlyData = [
     { month: 'Jul', value: 40 },
     { month: 'Aug', value: 65 },
@@ -82,7 +122,10 @@ export default function Dashboard({ user }: DashboardProps) {
     { month: 'Dec', value: 90 },
   ]
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
@@ -208,48 +251,65 @@ export default function Dashboard({ user }: DashboardProps) {
 
             {/* Upcoming Appointment */}
             <Card className="p-6 mb-8">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-4">
+              <h3 className="text-lg font-semibold mb-4">Upcoming appointment</h3>
+              {isLoading ? (
+                <p>Loading appointments...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : appointments.length === 0 ? (
+                <p>No upcoming appointments</p>
+              ) : (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Upcoming appointment</h3>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-2">
-                    <Image
-                      src={hosital}
-                      alt="Hospital"
-                      width={300}
-                      height={200}
-                      className="w-full outline-none shadow-lg shadow-gray-400 border-none sm:w-32 h-24 rounded-lg object-cover"
-                    />
-                    <div>
-                      <h4 className="font-medium">Manggis ST Hospital</h4>
-                      <p className="text-sm text-zinc-600">New York, USA</p>
+                  {appointments.slice(0, 1).map((appointment) => (
+                    <div key={appointment.id} className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <Image
+                          src={appointment.doctor.image || '/placeholder-doctor.jpg'}
+                          alt="Doctor"
+                          width={60}
+                          height={60}
+                          className="w-12 h-12 rounded-full"
+                        />
+                        <div>
+                          <p className="font-medium">Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}</p>
+                          <p className="text-sm text-zinc-600">{appointment.doctor.spiciality}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <Button
+                          className={`${
+                            isAppointmentActive(appointment.dateTime)
+                              ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                              : isAppointmentStartingSoon(appointment.dateTime)
+                              ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                              : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                          }`}
+                          onClick={() => {
+                            if (isAppointmentActive(appointment.dateTime)) {
+                              router.push("/reciever")
+                            }
+                          }}
+                          disabled={!isAppointmentActive(appointment.dateTime) && !isAppointmentStartingSoon(appointment.dateTime)}
+                        >
+                          <VideoIcon className="h-4 w-4 mr-2" />
+                          {isAppointmentActive(appointment.dateTime)
+                            ? 'Join Video...'
+                            : isAppointmentStartingSoon(appointment.dateTime)
+                            ? 'Starting Soon'
+                            : 'Wait for Appointment'}
+                        </Button>
+                      </div>
                     </div>
+                  ))}
+                  <div className="flex items-center gap-4 text-sm text-zinc-600 mt-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {appointments[0] && new Date(appointments[0].dateTime).toLocaleDateString()}
+                    </div>
+                    <div>{appointments[0] && new Date(appointments[0].dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={doc12}
-                    alt="Doctor"
-                    width={60}
-                    height={60}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <p className="font-medium">Dr. Emilia Winson</p>
-                    <p className="text-sm text-zinc-600">Physiotherapy</p>
-                  </div>
-                  <Button className="ml-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-200" onClick={() => {router.push("/reciever")}}>
-                    <VideoIcon className="h-4 w-4 mr-2" />
-                    Video call
-                  </Button>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-zinc-600">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  28 Nov 2024
-                </div>
-                <div>09:00 pm</div>
-              </div>
+              )}
             </Card>
 
             {/* Patient Activities */}
@@ -263,7 +323,7 @@ export default function Dashboard({ user }: DashboardProps) {
                     <option>Day</option>
                   </select>
                 </div>
-                
+
                 {/* Bar Chart */}
                 <div className="h-48 flex items-end gap-4" role="graphics-document" aria-label="Monthly activity chart">
                   {monthlyData.map((data, index) => (
@@ -318,7 +378,7 @@ export default function Dashboard({ user }: DashboardProps) {
                   <Progress
                     value={80}
                     className="h-32 w-32 rounded-full [&>div]:bg-emerald-500 [&>div]:transition-all [&>div]:duration-500"
-                />
+                  />
                 </div>
               </Card>
             </div>
@@ -330,22 +390,20 @@ export default function Dashboard({ user }: DashboardProps) {
           <div className="flex gap-2 mb-6">
             <Button
               variant="ghost"
-              className={`flex-1 ${
-                activeView === 'monthly'
+              className={`flex-1 ${activeView === 'monthly'
                   ? 'bg-emerald-100 text-emerald-700'
                   : 'hover:bg-emerald-50 hover:text-emerald-600'
-              }`}
+                }`}
               onClick={() => setActiveView('monthly')}
             >
               Monthly
             </Button>
             <Button
               variant="ghost"
-              className={`flex-1 ${
-                activeView === 'daily'
+              className={`flex-1 ${activeView === 'daily'
                   ? 'bg-emerald-100 text-emerald-700'
                   : 'hover:bg-emerald-50 hover:text-emerald-600'
-              }`}
+                }`}
               onClick={() => setActiveView('daily')}
             >
               Daily
@@ -378,9 +436,9 @@ export default function Dashboard({ user }: DashboardProps) {
               ))}
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const day = i + 1
-                const isToday = day === new Date().getDate() && 
-                                currentDate.getMonth() === new Date().getMonth() && 
-                                currentDate.getFullYear() === new Date().getFullYear()
+                const isToday = day === new Date().getDate() &&
+                  currentDate.getMonth() === new Date().getMonth() &&
+                  currentDate.getFullYear() === new Date().getFullYear()
                 return (
                   <Button
                     key={day}
@@ -395,27 +453,48 @@ export default function Dashboard({ user }: DashboardProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                <Heart className="h-5 w-5 text-orange-500" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium">Manage stress</h4>
-                <p className="text-sm text-zinc-600">10:00pm - 12:00 pm</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-zinc-400" />
-            </div>
-            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <VideoIcon className="h-5 w-5 text-blue-500" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium">Physiotherapy</h4>
-                <p className="text-sm text-zinc-600">09:00am - 10:00 am</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-zinc-400" />
-            </div>
-            <Button variant="link" className="w-full text-emerald-600">
+            <h3 className="font-semibold mb-2">Other Appointments</h3>
+            {isLoading ? (
+              <p>Loading appointments...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : appointments.length <= 1 ? (
+              <p>No other appointments</p>
+            ) : (
+              appointments.slice(1).map((appointment) => (
+                <div key={appointment.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
+                  <div className={`w-10 h-10 rounded-full ${isAppointmentStartingSoon(appointment.dateTime) ? 'bg-emerald-100' : 'bg-blue-100'
+                    } flex items-center justify-center`}>
+                    <VideoIcon className={`h-5 w-5 ${isAppointmentStartingSoon(appointment.dateTime) ? 'text-emerald-500' : 'text-blue-500'
+                      }`} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium">{appointment.title}</h4>
+                    <p className="text-sm text-zinc-600">
+                      {new Date(appointment.dateTime).toLocaleString([], {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                  {isAppointmentStartingSoon(appointment.dateTime) ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-emerald-600 hover:text-emerald-700"
+                      onClick={() => router.push("/reciever")}
+                    >
+                      Join
+                    </Button>
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-zinc-400" />
+                  )}
+                </div>
+              ))
+            )}
+            <Button variant="link" className="w-full text-emerald-600" onClick={() => router.push("/totalapp")}>
               See More Schedule
             </Button>
           </div>

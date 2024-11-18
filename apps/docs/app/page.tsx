@@ -1,12 +1,15 @@
-import Image from "next/image";
-import { Button } from "@repo/ui/button";
+import { getServerSession } from "next-auth";
 import styles from "./page.module.css";
+import { authOptionDoctor } from "./lib/authoption";
+import { redirect } from "next/navigation";
+import Dashboard from "../components/Dashboard";
 
-export default function Home() {
-  return (
-    <>
-    Heloo 2nd web page
-    </>
-   
-  );
+export default async function Home() {
+  const session = await getServerSession(authOptionDoctor)
+  if (!session) {  
+    return redirect("/doctor/signin")
+  }else{
+    return redirect("/dashboard")
+  }
+  
 }

@@ -1,11 +1,17 @@
+'use client'
+
 import Image from "next/image"
 import Link from "next/link"
 import { Menu } from "lucide-react"
+import { useSession, signOut } from "next-auth/react"
+import { redirect } from "next/navigation"
 
 import { Button } from "@repo/ui/button"
 import img from '../public/doctor.jpg'
 
-export default function LandinPage() {
+export default function LandingPage() {
+  const { data: session } = useSession()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40">
       {/* Navigation */}
@@ -30,11 +36,20 @@ export default function LandinPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            <Link className="text-zinc-200 hover:text-white transition-colors hidden sm:inline-block" href="/signin">
-              Log in
-            </Link>
-            <Button className="bg-white text-zinc-900 hover:bg-zinc-200">
-              Request appointment
+            {session ? (
+              <Button 
+                className="bg-white text-zinc-900 hover:bg-zinc-200" 
+                onClick={() => signOut({ callbackUrl: '/signin' })}
+              >
+                Log out
+              </Button>
+            ) : (
+              <Link className="text-zinc-200 hover:text-white transition-colors hidden sm:inline-block" href="/signin">
+                Log in
+              </Link>
+            )}
+            <Button className="bg-white text-zinc-900 hover:bg-zinc-200" onClick={() => redirect("http://localhost:3001")}>
+              Admin Panel
             </Button>
           </div>
         </nav>
