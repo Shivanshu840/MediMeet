@@ -1,14 +1,41 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Button } from "@repo/ui/button"
-import { Card, CardContent } from "@repo/ui/card"
+import { Card } from "@repo/ui/card"
 import { Progress } from "@repo/ui/progress"
-import { Calendar, ChevronLeft, ChevronRight, Heart, Home, LayoutDashboard, LogOut, Plus, Search, Settings, User2, VideoIcon, Bell, X, Menu } from 'lucide-react'
-import { signOut } from 'next-auth/react'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  Plus,
+  Search,
+  Settings,
+  User2,
+  VideoIcon,
+  Bell,
+  X,
+  Menu,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react"
+import { signOut } from "next-auth/react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@repo/ui/dialog"
+import HealthSuggestionCard from "./health-suggestion-card"
 
 interface User {
   name?: string | null
@@ -18,6 +45,7 @@ interface User {
   birthday?: string | null
   phone?: string | null
   address?: string | null
+  id?: string | null
 }
 
 interface Appointment {
@@ -32,19 +60,38 @@ interface Appointment {
   }
 }
 
-interface DashboardProps {
-  user: User
+interface HealthData {
+  weight: number
+  foodCalories: number
+  steps: number
+  heartRate: number
+  sleepTime: number
+  bloodPressure: {
+    systolic: number
+    diastolic: number
+  }
+  temperature: number
+  airQuality: {
+    aqi: number
+    status: string
+  }
 }
 
-export default function Dashboard({ user }: DashboardProps) {
+interface DashboardProps {
+  user: User
+  healthData?: HealthData
+}
+
+export default function Dashboard({ user, healthData }: DashboardProps) {
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [activeView, setActiveView] = useState('monthly')
+  const [activeView, setActiveView] = useState("monthly")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showHealthSuggestion, setShowHealthSuggestion] = useState(true)
   const router = useRouter()
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
@@ -64,31 +111,31 @@ export default function Dashboard({ user }: DashboardProps) {
 
   const confirmLogout = async () => {
     await signOut({ redirect: false })
-    router.push('/signin')
+    router.push("/signin")
   }
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
   const isAppointmentActive = (appointmentTime: string) => {
-    const now = new Date();
-    const appTime = new Date(appointmentTime);
-    const timeDifference = now.getTime() - appTime.getTime();
-    return timeDifference >= 0 && timeDifference <= 90 * 60 * 1000; // 1 hour and 30 minutes
-  };
+    const now = new Date()
+    const appTime = new Date(appointmentTime)
+    const timeDifference = now.getTime() - appTime.getTime()
+    return timeDifference >= 0 && timeDifference <= 90 * 60 * 1000 // 1 hour and 30 minutes
+  }
 
   const isAppointmentStartingSoon = (appointmentTime: string) => {
-    const now = new Date();
-    const appTime = new Date(appointmentTime);
-    const timeDifference = appTime.getTime() - now.getTime();
-    return timeDifference > 0 && timeDifference <= 2 * 60 * 1000; // 2 minutes before start
-  };
+    const now = new Date()
+    const appTime = new Date(appointmentTime)
+    const timeDifference = appTime.getTime() - now.getTime()
+    return timeDifference > 0 && timeDifference <= 2 * 60 * 1000 // 2 minutes before start
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentDate(new Date())
-    }, 60000); 
+    }, 60000)
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer)
   }, [])
 
   useEffect(() => {
@@ -96,15 +143,15 @@ export default function Dashboard({ user }: DashboardProps) {
       setIsLoading(true)
       setError(null)
       try {
-        const response = await fetch('/api/auth/appointment')
+        const response = await fetch("/api/auth/appointment")
         if (!response.ok) {
-          throw new Error('Failed to fetch appointments')
+          throw new Error("Failed to fetch appointments")
         }
         const data = await response.json()
         setAppointments(data)
       } catch (err) {
-        setError('Error fetching appointments. Please try again later.')
-        console.error('Error fetching appointments:', err)
+        setError("Error fetching appointments. Please try again later.")
+        console.error("Error fetching appointments:", err)
       } finally {
         setIsLoading(false)
       }
@@ -114,34 +161,41 @@ export default function Dashboard({ user }: DashboardProps) {
   }, [])
 
   const monthlyData = [
-    { month: 'Jul', value: 40 },
-    { month: 'Aug', value: 65 },
-    { month: 'Sep', value: 85 },
-    { month: 'Oct', value: 55 },
-    { month: 'Nov', value: 75 },
-    { month: 'Dec', value: 90 },
+    { month: "Jul", value: 40 },
+    { month: "Aug", value: 65 },
+    { month: "Sep", value: 85 },
+    { month: "Oct", value: 55 },
+    { month: "Nov", value: 75 },
+    { month: "Dec", value: 90 },
   ]
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
       {/* Mobile Sidebar Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-4 left-4 z-50 lg:hidden"
-        onClick={toggleSidebar}
-      >
+      <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden" onClick={toggleSidebar}>
         {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
 
       {/* Left Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-64 bg-zinc-900 flex flex-col items-center py-4 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:w-16`}>
-        <Button variant="ghost" size="icon" className="text-emerald-500" onClick={() => router.push('/appointment')}>
+      <div
+        className={`fixed left-0 top-0 h-full w-64 bg-zinc-900 flex flex-col items-center py-4 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:w-16`}
+      >
+        <Button variant="ghost" size="icon" className="text-emerald-500" onClick={() => router.push("/appointment")}>
           <Plus className="h-6 w-6" />
         </Button>
         <div className="space-y-4 flex-1 mt-8">
@@ -153,7 +207,12 @@ export default function Dashboard({ user }: DashboardProps) {
             <Home className="h-5 w-5" />
             <span className="ml-2 lg:hidden">Home</span>
           </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-400 w-full" onClick={() => router.push("./totalapp")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-zinc-400 w-full"
+            onClick={() => router.push("./totalapp")}
+          >
             <Calendar className="h-5 w-5" />
             <span className="ml-2 lg:hidden">Calendar</span>
           </Button>
@@ -181,7 +240,11 @@ export default function Dashboard({ user }: DashboardProps) {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowLogoutConfirmation(false)} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+              <Button
+                variant="outline"
+                onClick={() => setShowLogoutConfirmation(false)}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              >
                 Cancel
               </Button>
               <Button variant="default" onClick={confirmLogout} className="bg-red-500 hover:bg-red-600 text-white">
@@ -201,7 +264,7 @@ export default function Dashboard({ user }: DashboardProps) {
               <div className="w-16 h-16 rounded-full bg-emerald-200 overflow-hidden">
                 {user.image ? (
                   <Image
-                    src={user.image}
+                    src={user.image || "/placeholder.svg"}
                     alt="Profile"
                     width={64}
                     height={64}
@@ -218,10 +281,11 @@ export default function Dashboard({ user }: DashboardProps) {
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold text-lg">Check your condition</h3>
-              <p className="text-sm text-zinc-600">
-                Check your every situation and your activities
-              </p>
-              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
+              <p className="text-sm text-zinc-600">Check your every situation and your activities</p>
+              <Button
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={() => router.push("/health")}
+              >
                 Check it Now
               </Button>
             </div>
@@ -233,7 +297,7 @@ export default function Dashboard({ user }: DashboardProps) {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Hi, {user.name || 'Patient'}</h1>
+                <h1 className="text-2xl font-bold">Hi, {user.name || "Patient"}</h1>
                 <p className="text-zinc-600">Let's track your health daily!</p>
               </div>
               <div className="flex items-center gap-4">
@@ -261,17 +325,22 @@ export default function Dashboard({ user }: DashboardProps) {
               ) : (
                 <div>
                   {appointments.slice(0, 1).map((appointment) => (
-                    <div key={appointment.id} className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                    <div
+                      key={appointment.id}
+                      className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4"
+                    >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <Image
-                          src={appointment.doctor.image || '/placeholder-doctor.jpg'}
+                          src={appointment.doctor.image || "/placeholder-doctor.jpg"}
                           alt="Doctor"
                           width={60}
                           height={60}
                           className="w-12 h-12 rounded-full"
                         />
                         <div>
-                          <p className="font-medium">Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}</p>
+                          <p className="font-medium">
+                            Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
+                          </p>
                           <p className="text-sm text-zinc-600">{appointment.doctor.spiciality}</p>
                         </div>
                       </div>
@@ -279,24 +348,27 @@ export default function Dashboard({ user }: DashboardProps) {
                         <Button
                           className={`${
                             isAppointmentActive(appointment.dateTime)
-                              ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                              ? "bg-emerald-500 text-white hover:bg-emerald-600"
                               : isAppointmentStartingSoon(appointment.dateTime)
-                              ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                              : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                                : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                           }`}
                           onClick={() => {
                             if (isAppointmentActive(appointment.dateTime)) {
                               router.push("/reciever")
                             }
                           }}
-                          disabled={!isAppointmentActive(appointment.dateTime) && !isAppointmentStartingSoon(appointment.dateTime)}
+                          disabled={
+                            !isAppointmentActive(appointment.dateTime) &&
+                            !isAppointmentStartingSoon(appointment.dateTime)
+                          }
                         >
                           <VideoIcon className="h-4 w-4 mr-2" />
                           {isAppointmentActive(appointment.dateTime)
-                            ? 'Join Video...'
+                            ? "Join Video..."
                             : isAppointmentStartingSoon(appointment.dateTime)
-                            ? 'Starting Soon'
-                            : 'Wait for Appointment'}
+                              ? "Starting Soon"
+                              : "Wait for Appointment"}
                         </Button>
                       </div>
                     </div>
@@ -306,7 +378,13 @@ export default function Dashboard({ user }: DashboardProps) {
                       <Calendar className="h-4 w-4" />
                       {appointments[0] && new Date(appointments[0].dateTime).toLocaleDateString()}
                     </div>
-                    <div>{appointments[0] && new Date(appointments[0].dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div>
+                      {appointments[0] &&
+                        new Date(appointments[0].dateTime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -333,7 +411,9 @@ export default function Dashboard({ user }: DashboardProps) {
                           className="w-full bg-gradient-to-t from-emerald-100 to-emerald-300 rounded-full transition-all duration-300 group-hover:to-emerald-400"
                           style={{ height: `${data.value}%` }}
                         >
-                          <span className="sr-only">{data.value}% activity in {data.month}</span>
+                          <span className="sr-only">
+                            {data.value}% activity in {data.month}
+                          </span>
                         </div>
                       </div>
                       <span className="text-sm text-zinc-600">{data.month}</span>
@@ -368,9 +448,7 @@ export default function Dashboard({ user }: DashboardProps) {
               {/* Daily Progress Card */}
               <Card className="p-6 bg-emerald-50">
                 <h3 className="text-lg font-semibold mb-2">Daily progress</h3>
-                <p className="text-sm text-zinc-600 mb-6">
-                  Keep improving the quality of your health
-                </p>
+                <p className="text-sm text-zinc-600 mb-6">Keep improving the quality of your health</p>
                 <div className="relative w-32 h-32 mx-auto">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-2xl font-bold">80%</span>
@@ -382,6 +460,22 @@ export default function Dashboard({ user }: DashboardProps) {
                 </div>
               </Card>
             </div>
+
+            {/* AI Health Insights Card */}
+            <Card className="p-6 mb-8 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-5 w-5 text-emerald-500" />
+                <h3 className="text-lg font-semibold">AI Health Insights</h3>
+              </div>
+              <p className="text-zinc-600 mb-4">Get personalized health recommendations based on your data</p>
+              <Button
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={() => router.push("/health")}
+              >
+                View Health Insights
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Card>
           </div>
         </div>
 
@@ -390,21 +484,23 @@ export default function Dashboard({ user }: DashboardProps) {
           <div className="flex gap-2 mb-6">
             <Button
               variant="ghost"
-              className={`flex-1 ${activeView === 'monthly'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'hover:bg-emerald-50 hover:text-emerald-600'
-                }`}
-              onClick={() => setActiveView('monthly')}
+              className={`flex-1 ${
+                activeView === "monthly"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+              onClick={() => setActiveView("monthly")}
             >
               Monthly
             </Button>
             <Button
               variant="ghost"
-              className={`flex-1 ${activeView === 'daily'
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'hover:bg-emerald-50 hover:text-emerald-600'
-                }`}
-              onClick={() => setActiveView('daily')}
+              className={`flex-1 ${
+                activeView === "daily"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "hover:bg-emerald-50 hover:text-emerald-600"
+              }`}
+              onClick={() => setActiveView("daily")}
             >
               Daily
             </Button>
@@ -413,7 +509,7 @@ export default function Dashboard({ user }: DashboardProps) {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold">
-                {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
               </h3>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
@@ -426,7 +522,7 @@ export default function Dashboard({ user }: DashboardProps) {
             </div>
 
             <div className="grid grid-cols-7 gap-2 text-center text-sm">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
+              {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
                 <div key={day} className="text-zinc-600 font-medium">
                   {day}
                 </div>
@@ -436,14 +532,15 @@ export default function Dashboard({ user }: DashboardProps) {
               ))}
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const day = i + 1
-                const isToday = day === new Date().getDate() &&
+                const isToday =
+                  day === new Date().getDate() &&
                   currentDate.getMonth() === new Date().getMonth() &&
                   currentDate.getFullYear() === new Date().getFullYear()
                 return (
                   <Button
                     key={day}
                     variant="ghost"
-                    className={`h-8 w-8 p-0 ${isToday ? 'bg-emerald-100 text-emerald-700' : ''}`}
+                    className={`h-8 w-8 p-0 ${isToday ? "bg-emerald-100 text-emerald-700" : ""}`}
                   >
                     {day}
                   </Button>
@@ -462,20 +559,29 @@ export default function Dashboard({ user }: DashboardProps) {
               <p>No other appointments</p>
             ) : (
               appointments.slice(1).map((appointment) => (
-                <div key={appointment.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-emerald-50 transition-colors">
-                  <div className={`w-10 h-10 rounded-full ${isAppointmentStartingSoon(appointment.dateTime) ? 'bg-emerald-100' : 'bg-blue-100'
-                    } flex items-center justify-center`}>
-                    <VideoIcon className={`h-5 w-5 ${isAppointmentStartingSoon(appointment.dateTime) ? 'text-emerald-500' : 'text-blue-500'
-                      }`} />
+                <div
+                  key={appointment.id}
+                  className="flex items-center gap-4 p-3 rounded-lg hover:bg-emerald-50 transition-colors"
+                >
+                  <div
+                    className={`w-10 h-10 rounded-full ${
+                      isAppointmentStartingSoon(appointment.dateTime) ? "bg-emerald-100" : "bg-blue-100"
+                    } flex items-center justify-center`}
+                  >
+                    <VideoIcon
+                      className={`h-5 w-5 ${
+                        isAppointmentStartingSoon(appointment.dateTime) ? "text-emerald-500" : "text-blue-500"
+                      }`}
+                    />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium">{appointment.title}</h4>
                     <p className="text-sm text-zinc-600">
                       {new Date(appointment.dateTime).toLocaleString([], {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </p>
                   </div>
@@ -500,6 +606,24 @@ export default function Dashboard({ user }: DashboardProps) {
           </div>
         </div>
       </div>
+
+      {/* Floating Health Suggestion Card */}
+      {showHealthSuggestion && (
+        <div className="fixed bottom-6 right-6 w-80 z-50">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-zinc-800 text-white z-10"
+              onClick={() => setShowHealthSuggestion(false)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+            <HealthSuggestionCard />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+

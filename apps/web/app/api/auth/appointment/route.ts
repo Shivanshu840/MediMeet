@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
 import { authOption } from '../../../lib/action'
 import prisma from "@repo/db/clients"
+import { updateUserCurrentData } from '../../../../utils/updateUserData'
+import { sendEmail } from '../../../../services/emailServices'
 
 
 
@@ -15,6 +17,8 @@ export async function GET(request: Request) {
   const userId = session.user.id
 
   try {
+    await updateUserCurrentData(userId, { apiHit: true });
+    await updateUserCurrentData(userId,{appointmentBooking:true})
     const appointments = await prisma.appointment.findMany({
       where: {
         userId: userId,
@@ -35,7 +39,9 @@ export async function GET(request: Request) {
       orderBy: {
         dateTime: 'asc',
       },
+
     })
+    
 
     return NextResponse.json(appointments)
   } catch (error) {

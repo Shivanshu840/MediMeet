@@ -1,13 +1,30 @@
-import { getServerSession } from "next-auth/next"
-import { authOption } from "../../lib/action"
-import Dashboard from "../../../components/PatientDashboard"
-import { redirect} from "next/navigation"
+import { getServerSession } from "next-auth/next";
+import { authOption } from "../../lib/action";
+import { redirect } from "next/navigation";
+import Dashboard from "../../../components/dashboard";
+import prisma from "@repo/db/clients";
+import { Session } from "next-auth";
+
+
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOption)
-  if (!session) {  
-    return redirect("/signin")
+  const session: Session | null = await getServerSession(authOption);
+
+  if (!session || !session.user) {
+    redirect("/api/auth/signin?callbackUrl=/dashboard");
   }
 
-  return <Dashboard user={session.user} />
+  const user = session.user;
+
+  const healthData = await prisma.health.findUnique({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  return (
+    <>
+      <Dashboard user={user} healthData={healthData} />
+    </>
+  );
 }

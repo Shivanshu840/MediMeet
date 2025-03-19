@@ -1,6 +1,7 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@repo/db/clients";
-import { Doctor } from "next-auth";
+
 
 export const authOptionDoctor = {
   providers: [
@@ -11,7 +12,8 @@ export const authOptionDoctor = {
   ],
   secret: process.env.JWT_SECRET || "secret",
   callbacks: {
-    async signIn({ user, account, profile }: any) {
+    // eslint-disable-next-line no-unused-vars
+    async signIn({ user, profile }: any) {
       let dbDoctor = await prisma.doctor.findUnique({
         where: { email: user.email },
       });
@@ -34,7 +36,7 @@ export const authOptionDoctor = {
       return true;
     },
 
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user }: any) {
       if (user) {
         token.user = {
           id: user.id,

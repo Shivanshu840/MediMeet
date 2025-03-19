@@ -23,6 +23,10 @@ model User {
   dob           String?
   health        Health?
   appointments  Appointment[]
+
+  UserCurrentData UserCurrentData[]
+
+  Lead Lead[]
 }
 
 model Doctor {
@@ -105,4 +109,40 @@ model Health {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   datedAt           DateTime @updatedAt
+}
+
+model UserCurrentData {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id])
+  
+  totalApiHits        Int      @default(0) // Number of API requests made by the user
+  formSubmissions     Int      @default(0) // Number of form submissions
+  whatsappMessages    Int      @default(0) // Messages received via WhatsApp
+  emailResponses      Int      @default(0) // Email responses received
+  smsResponses        Int      @default(0) // SMS responses received
+  appointmentBookings Int      @default(0) // Number of appointments booked
+  lastActive          DateTime @default(now()) // Last active timestamp
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Lead {
+  id         String  @id @default(uuid())
+  userId     String  @unique
+  user       User    @relation(fields: [userId], references: [id])
+  score      Int     @default(0) // Engagement score based on UserCurrentData
+  rank       Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model HealthSuggestion {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+
+  @@index([userId])
 }
