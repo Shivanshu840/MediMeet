@@ -2,21 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOption } from "../../../lib/action";
 import prisma from "@repo/db/clients";
-import ollama from "ollama"; // Import Ollama
-
-const HEALTH_RANGES = {
-  weight: { min: 45, max: 100, unit: "kg" },
-  foodCalories: { min: 1200, max: 2500, unit: "kcal" },
-  steps: { min: 5000, max: 10000, unit: "steps" },
-  heartRate: { min: 60, max: 100, unit: "bpm" },
-  sleepTime: { min: 7, max: 9, unit: "hours" },
-  bloodPressure: {
-    systolic: { min: 90, max: 120, unit: "mmHg" },
-    diastolic: { min: 60, max: 80, unit: "mmHg" },
-  },
-  temperature: { min: 36.1, max: 37.2, unit: "°C" },
-  airQuality: { min: 0, max: 50, unit: "AQI" },
-};
+import { InferenceClient } from "@huggingface/inference";
+const apiKEy = process.env.HUGGINGFACE_API_KEY
+const client = new InferenceClient(apiKEy);
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOption);
@@ -152,23 +140,40 @@ async function analyzeHealthData(healthData: any, userId: string) {
   }
 }
 
-/**
- * Generate AI-powered personalized email content for health updates.
- */
 export const generateAIEmailContent = async (healthData: string): Promise<string> => {
   try {
-    console.log("inside the ai function");
-    const response = await ollama.chat({
-      model: "mistral", // Change model if needed
-      messages: [
-        { role: "system", content: "You are a professional health assistant. Generate a short and concise email (15-20 words max) with quick health insights, exercise suggestions, and diet recommendations." },
-        { role: "user", content: `User's Health Data: ${healthData}. Provide an email with personalized feedback, exercise tips, and diet recommendations.` },
-      ],
-    });
+   
+      try {
+      const chatCompletion = await client.chatCompletion({
+        model: "mistralai/Mistral-Nemo-Instruct-2407",
+          
+        messages: [
+          {
+            role: "system",
+            content: "You are a professional health assistant. Provide brief, personalized health insights, exercise tips, and diet recommendations in English. Do not include greetings, subject lines, or bullet points. Respond in short, flowing sentences, and include relevant emojis. Keep the entire response under 50 words."
+          },
+          {
+            role: "user",
+            content: `User's Health Data: ${healthData}. Extract key health metrics and provide concise personalized feedback, exercise tips, and diet recommendations in short, flowing sentences, and include emojis.`
+          }
+        ],
+        provider: "hf-inference",
+        max_tokens: 500,
+      });
 
-    return response.message.content || "Couldn't generate feedback.";
+      return chatCompletion.choices[0]?.message.content || "Couldn't generate feedback.";
+    } catch (apiError) {
+      console.error("❌ HuggingFace API Error:", apiError);
+      
+      if (apiError instanceof Error) {
+        console.error("Error message:", apiError.message);
+        console.error("Error stack:", apiError.stack);
+      }
+      
+      return "We couldn't generate feedback at this moment. API error occurred.";
+    }
   } catch (error) {
-    console.error("❌ Ollama Error:", error);
+    console.error("❌ Unexpected error in generateAIEmailContent:", error);
     return "We couldn't generate feedback at this moment.";
   }
 };

@@ -24,6 +24,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@huggingface/inference": "^3.6.1",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",

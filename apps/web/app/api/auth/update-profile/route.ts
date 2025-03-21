@@ -2,18 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import prisma from "@repo/db/clients"
 import { authOption } from '../../../lib/action'
-import { updateUserCurrentData } from '../../../../utils/updateUserData';
-import { sendEmail } from '../../../../services/emailServices';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOption);
-
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const userId = session.user.id
   try {
-    await updateUserCurrentData(userId, { apiHit: true });
     console.log('GET request received')
     const session = await getServerSession(authOption)
     console.log('Session:', JSON.stringify(session, null, 2))
@@ -42,12 +33,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOption);
-
-  if (!session || !session.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const userId = session.user.id
   try {
     console.log('POST request received')
     const session = await getServerSession(authOption)
@@ -72,15 +57,9 @@ export async function POST(req: NextRequest) {
         ...(dob !== undefined && { dob }),
         ...(image !== undefined && { image }),
       },
-      select:{
-        email:true,
-        firstName:true
-      }
     })
 
     console.log('Updated user in database:', JSON.stringify(updatedUser, null, 2))
-    await sendEmail("UPDATE_PROFILE",updatedUser.email,{ name: updatedUser.firstName})
-    updateUserCurrentData(userId,{emailResponse:true})
     return NextResponse.json({ 
       message: 'Profile updated successfully', 
       user: updatedUser

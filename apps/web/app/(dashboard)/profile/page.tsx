@@ -9,7 +9,6 @@ export default async function Profile() {
  
   if (!session) {
     redirect("/signin")
-    return null
   }
   return (
     <ProfilePage/>

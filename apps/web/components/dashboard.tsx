@@ -36,6 +36,8 @@ import {
   DialogTrigger,
 } from "@repo/ui/dialog"
 import HealthSuggestionCard from "./health-suggestion-card"
+import PatientActivityChart from "./patient-activity-chart"
+import LeftBar from "./sidebar"
 
 interface User {
   name?: string | null
@@ -160,29 +162,7 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
     fetchAppointments()
   }, [])
 
-  const monthlyData = [
-    { month: "Jul", value: 40 },
-    { month: "Aug", value: 65 },
-    { month: "Sep", value: 85 },
-    { month: "Oct", value: 55 },
-    { month: "Nov", value: 75 },
-    { month: "Dec", value: 90 },
-  ]
 
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
@@ -190,71 +170,6 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
       <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden" onClick={toggleSidebar}>
         {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
-
-      {/* Left Sidebar */}
-      <div
-        className={`fixed left-0 top-0 h-full w-64 bg-zinc-900 flex flex-col items-center py-4 transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:w-16`}
-      >
-        <Button variant="ghost" size="icon" className="text-emerald-500" onClick={() => router.push("/appointment")}>
-          <Plus className="h-6 w-6" />
-        </Button>
-        <div className="space-y-4 flex-1 mt-8">
-          <Button variant="ghost" size="icon" className="text-white w-full" onClick={() => router.push("/home")}>
-            <LayoutDashboard className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Dashboard</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-400 w-full" onClick={() => router.push("/")}>
-            <Home className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-zinc-400 w-full"
-            onClick={() => router.push("./totalapp")}
-          >
-            <Calendar className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Calendar</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-400 w-full" onClick={() => router.push("/health")}>
-            <Heart className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Health</span>
-          </Button>
-          <Button variant="ghost" size="icon" className="text-zinc-400 w-full" onClick={() => router.push("/profile")}>
-            <Settings className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Settings</span>
-          </Button>
-        </div>
-        <Dialog open={showLogoutConfirmation} onOpenChange={setShowLogoutConfirmation}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-zinc-400 mt-auto mb-4 w-full" onClick={handleLogout}>
-              <LogOut className="h-5 w-5" />
-              <span className="ml-2 lg:hidden">Logout</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-zinc-900 border border-zinc-800">
-            <DialogHeader>
-              <DialogTitle className="text-white">Confirm Logout</DialogTitle>
-              <DialogDescription className="text-zinc-400">
-                Are you sure you want to log out? You will be redirected to the sign-in page.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowLogoutConfirmation(false)}
-                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-              >
-                Cancel
-              </Button>
-              <Button variant="default" onClick={confirmLogout} className="bg-red-500 hover:bg-red-600 text-white">
-                Logout
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
       {/* Main Content */}
       <div className="lg:pl-16 flex flex-col lg:flex-row">
         {/* Left Panel */}
@@ -346,13 +261,13 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                       </div>
                       <div>
                         <Button
-                          className={`${
+                          className={
                             isAppointmentActive(appointment.dateTime)
                               ? "bg-emerald-500 text-white hover:bg-emerald-600"
                               : isAppointmentStartingSoon(appointment.dateTime)
                                 ? "bg-yellow-500 text-white hover:bg-yellow-600"
                                 : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-                          }`}
+                          }
                           onClick={() => {
                             if (isAppointmentActive(appointment.dateTime)) {
                               router.push("/reciever")
@@ -392,58 +307,17 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
 
             {/* Patient Activities */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Patient activities</h3>
-                  <select className="bg-transparent border-0 text-sm text-zinc-600 focus:ring-0">
-                    <option>Month</option>
-                    <option>Week</option>
-                    <option>Day</option>
-                  </select>
-                </div>
-
-                {/* Bar Chart */}
-                <div className="h-48 flex items-end gap-4" role="graphics-document" aria-label="Monthly activity chart">
-                  {monthlyData.map((data, index) => (
-                    <div key={`${data.month}-${index}`} className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full relative group">
-                        <div
-                          className="w-full bg-gradient-to-t from-emerald-100 to-emerald-300 rounded-full transition-all duration-300 group-hover:to-emerald-400"
-                          style={{ height: `${data.value}%` }}
-                        >
-                          <span className="sr-only">
-                            {data.value}% activity in {data.month}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-sm text-zinc-600">{data.month}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Good Conditions Card */}
-                <Card className="p-4 bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
-                  <button className="w-full flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                        <Heart className="w-5 h-5 text-emerald-600" />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="font-medium">Good conditions</h4>
-                        <p className="text-sm text-zinc-600">Anxiety & wellness</p>
-                      </div>
-                    </div>
-                    <svg
-                      className="w-5 h-5 text-zinc-400 transition-transform group-hover:translate-x-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </Card>
-              </div>
+              <PatientActivityChart
+                healthData={[
+                  { date: "Mon", heartRate: 72, steps: 5200, sleepHours: 7.2 },
+                  { date: "Tue", heartRate: 75, steps: 6800, sleepHours: 6.8 },
+                  { date: "Wed", heartRate: 70, steps: 7500, sleepHours: 7.5 },
+                  { date: "Thu", heartRate: 74, steps: 9200, sleepHours: 8.1 },
+                  { date: "Fri", heartRate: 78, steps: 8400, sleepHours: 7.0 },
+                  { date: "Sat", heartRate: 68, steps: 10500, sleepHours: 8.5 },
+                  { date: "Sun", heartRate: 65, steps: 4800, sleepHours: 9.2 },
+                ]}
+              />
 
               {/* Daily Progress Card */}
               <Card className="p-6 bg-emerald-50">
@@ -484,22 +358,22 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
           <div className="flex gap-2 mb-6">
             <Button
               variant="ghost"
-              className={`flex-1 ${
+              className={
                 activeView === "monthly"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "hover:bg-emerald-50 hover:text-emerald-600"
-              }`}
+                  ? "flex-1 bg-emerald-100 text-emerald-700"
+                  : "flex-1 hover:bg-emerald-50 hover:text-emerald-600"
+              }
               onClick={() => setActiveView("monthly")}
             >
               Monthly
             </Button>
             <Button
               variant="ghost"
-              className={`flex-1 ${
+              className={
                 activeView === "daily"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "hover:bg-emerald-50 hover:text-emerald-600"
-              }`}
+                  ? "flex-1 bg-emerald-100 text-emerald-700"
+                  : "flex-1 hover:bg-emerald-50 hover:text-emerald-600"
+              }
               onClick={() => setActiveView("daily")}
             >
               Daily

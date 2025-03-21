@@ -1,9 +1,6 @@
 import prisma from '@repo/db/clients';
 import { NextRequest, NextResponse } from 'next/server';
 import {  hash } from 'bcrypt';
-import { sendEmail } from '../../../../services/emailServices';
-import { updateUserCurrentData } from '../../../../utils/updateUserData';
-
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
@@ -39,11 +36,7 @@ export async function POST(req: NextRequest) {
                 id: true,
             },
         });
-        console.log("email sending");
-        
-        await sendEmail("WELCOME",email,{ name: "John Doe"})
-        console.log("email sendt sucessfull");
-        updateUserCurrentData(user.id,{emailResponse:true})
+
         
         return NextResponse.json(
             { user },

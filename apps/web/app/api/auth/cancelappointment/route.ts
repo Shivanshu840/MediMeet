@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
 import { authOption } from '../../../lib/action'
 import prisma from "@repo/db/clients"
-import { updateUserCurrentData } from '../../../../utils/updateUserData'
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOption)
@@ -14,7 +13,6 @@ export async function POST(request: Request) {
   const userId = session.user.id
 
   try {
-    await updateUserCurrentData(userId, { apiHit: true });
     const { appointmentId } = await request.json()
 
     if (!appointmentId) {

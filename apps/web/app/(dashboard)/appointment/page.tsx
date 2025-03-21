@@ -3,8 +3,6 @@ import { getServerSession } from 'next-auth/next'
 import { authOption } from '../../lib/action'
 import prisma from "@repo/db/clients"
 import   NewAppointmentForm  from '../../../components/appointment'
-import { sendEmail } from '../../../services/emailServices'
-import { updateUserCurrentData } from '../../../utils/updateUserData'
 
 export default async function NewAppointmentPage() {
   const session = await getServerSession(authOption)
@@ -54,21 +52,7 @@ export default async function NewAppointmentPage() {
         userId: user.id,
         doctorId,
       },
-      
     })
-    const doc=await prisma.doctor.findFirst({
-      where:{
-        id:doctorId
-      },
-      select:{
-        email:true,
-        firstName:true
-      }
-    })
-    await sendEmail("APPOINTMENT",session.user.email,{name:user.firstName});
-    console.log(`doc email ${doc?.email}`)
-    await sendEmail("APPOINTMENT_DOC",doc?.email,{name:doc?.firstName})
-    await updateUserCurrentData(session.user.id,{apiHit:true,appointmentBooking:true,emailResponse:true,formSubmission:true});
 
     redirect('/appointment')
   }
