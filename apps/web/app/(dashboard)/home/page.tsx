@@ -14,12 +14,6 @@ export default async function DashboardPage() {
 
   const user = session.user;
 
-  const healthData = await prisma.health.findUnique({
-    where: {
-      userId: user.id,
-    },
-  });
-
   return (
     <>
       <Dashboard user={user}  />

@@ -85,11 +85,9 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ user }: DashboardProps) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeView, setActiveView] = useState("monthly");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,15 +115,6 @@ export default function Dashboard({ user }: DashboardProps) {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
     );
-  };
-
-  const handleLogout = async () => {
-    setShowLogoutConfirmation(true);
-  };
-
-  const confirmLogout = async () => {
-    await signOut({ redirect: false });
-    router.push("/signin");
   };
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
