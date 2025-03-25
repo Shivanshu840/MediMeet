@@ -84,7 +84,7 @@ interface DashboardProps {
   healthData?: HealthData;
 }
 
-export default function Dashboard({ user, healthData }: DashboardProps) {
+export default function Dashboard({ user }: DashboardProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeView, setActiveView] = useState("monthly");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

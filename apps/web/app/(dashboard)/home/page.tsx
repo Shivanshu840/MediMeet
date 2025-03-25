@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Dashboard user={user} healthData={healthData} />
+      <Dashboard user={user}  />
     </>
   );
 }
