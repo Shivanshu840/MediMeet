@@ -252,7 +252,7 @@ export default function HealthAIInsights() {
                   <div className="mt-4">
                     <h3 className="text-sm font-medium text-zinc-400 mb-2">Previous Insights</h3>
                     <Card className="bg-zinc-800 border-zinc-700">
-                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[0].content}</CardContent>
+                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[0]?.content}</CardContent>
                     </Card>
                   </div>
                 )}
@@ -269,7 +269,7 @@ export default function HealthAIInsights() {
                   <div className="mt-4">
                     <h3 className="text-sm font-medium text-zinc-400 mb-2">Previous Insights</h3>
                     <Card className="bg-zinc-800 border-zinc-700">
-                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[1].content}</CardContent>
+                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[1]?.content}</CardContent>
                     </Card>
                   </div>
                 )}
@@ -279,7 +279,7 @@ export default function HealthAIInsights() {
                 <Alert className="bg-zinc-800 border-zinc-700">
                   <Info className="h-4 w-4 text-emerald-500" />
                   <AlertTitle className="text-white">Latest Health Insight</AlertTitle>
-                  <AlertDescription className="text-zinc-300">{suggestions[0].content}</AlertDescription>
+                  <AlertDescription className="text-zinc-300">{suggestions[0]?.content}</AlertDescription>
                 </Alert>
               </div>
             ) : (
