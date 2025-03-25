@@ -2,8 +2,8 @@
   "name": "my-turborepo",
   "private": true,
   "scripts": {
-    "build": "turbo build && npx prisma generate",
-    "dev": "turbo dev",
+    "build": "turbo build",
+    "dev": "turbo dev && npx prisma generate",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
