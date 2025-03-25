@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@repo/ui/button"
-import { Card } from "@repo/ui/card"
-import { Progress } from "@repo/ui/progress"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@repo/ui/button";
+import { Card } from "@repo/ui/card";
+import { Progress } from "@repo/ui/progress";
 import {
   Calendar,
   ChevronLeft,
@@ -24,8 +24,8 @@ import {
   Menu,
   Sparkles,
   ArrowRight,
-} from "lucide-react"
-import { signOut } from "next-auth/react"
+} from "lucide-react";
+import { signOut } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -34,141 +34,160 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/dialog"
-import HealthSuggestionCard from "./health-suggestion-card"
-import PatientActivityChart from "./patient-activity-chart"
-import LeftBar from "./sidebar"
+} from "@repo/ui/dialog";
+import HealthSuggestionCard from "./health-suggestion-card";
+import PatientActivityChart from "./patient-activity-chart";
+import LeftBar from "./sidebar";
 
 interface User {
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  gender?: string | null
-  birthday?: string | null
-  phone?: string | null
-  address?: string | null
-  id?: string | null
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  gender?: string | null;
+  birthday?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  id?: string | null;
 }
 
 interface Appointment {
-  id: string
-  title: string
-  dateTime: string
+  id: string;
+  title: string;
+  dateTime: string;
   doctor: {
-    firstName: string
-    lastName: string
-    spiciality: string
-    image: string
-  }
+    firstName: string;
+    lastName: string;
+    spiciality: string;
+    image: string;
+  };
 }
 
 interface HealthData {
-  weight: number
-  foodCalories: number
-  steps: number
-  heartRate: number
-  sleepTime: number
+  weight: number;
+  foodCalories: number;
+  steps: number;
+  heartRate: number;
+  sleepTime: number;
   bloodPressure: {
-    systolic: number
-    diastolic: number
-  }
-  temperature: number
+    systolic: number;
+    diastolic: number;
+  };
+  temperature: number;
   airQuality: {
-    aqi: number
-    status: string
-  }
+    aqi: number;
+    status: string;
+  };
 }
 
 interface DashboardProps {
-  user: User
-  healthData?: HealthData
+  user: User;
+  healthData?: HealthData;
 }
 
 export default function Dashboard({ user, healthData }: DashboardProps) {
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [activeView, setActiveView] = useState("monthly")
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
-  const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [showHealthSuggestion, setShowHealthSuggestion] = useState(true)
-  const router = useRouter()
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [activeView, setActiveView] = useState("monthly");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showHealthSuggestion, setShowHealthSuggestion] = useState(true);
+  const router = useRouter();
 
-  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay()
+  const daysInMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0,
+  ).getDate();
+  const firstDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  ).getDay();
 
   const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
-  }
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+    );
+  };
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-  }
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    );
+  };
 
   const handleLogout = async () => {
-    setShowLogoutConfirmation(true)
-  }
+    setShowLogoutConfirmation(true);
+  };
 
   const confirmLogout = async () => {
-    await signOut({ redirect: false })
-    router.push("/signin")
-  }
+    await signOut({ redirect: false });
+    router.push("/signin");
+  };
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const isAppointmentActive = (appointmentTime: string) => {
-    const now = new Date()
-    const appTime = new Date(appointmentTime)
-    const timeDifference = now.getTime() - appTime.getTime()
-    return timeDifference >= 0 && timeDifference <= 90 * 60 * 1000 // 1 hour and 30 minutes
-  }
+    const now = new Date();
+    const appTime = new Date(appointmentTime);
+    const timeDifference = now.getTime() - appTime.getTime();
+    return timeDifference >= 0 && timeDifference <= 90 * 60 * 1000; // 1 hour and 30 minutes
+  };
 
   const isAppointmentStartingSoon = (appointmentTime: string) => {
-    const now = new Date()
-    const appTime = new Date(appointmentTime)
-    const timeDifference = appTime.getTime() - now.getTime()
-    return timeDifference > 0 && timeDifference <= 2 * 60 * 1000 // 2 minutes before start
-  }
+    const now = new Date();
+    const appTime = new Date(appointmentTime);
+    const timeDifference = appTime.getTime() - now.getTime();
+    return timeDifference > 0 && timeDifference <= 2 * 60 * 1000; // 2 minutes before start
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentDate(new Date())
-    }, 60000)
+      setCurrentDate(new Date());
+    }, 60000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function fetchAppointments() {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
       try {
-        const response = await fetch("/api/auth/appointment")
+        const response = await fetch("/api/auth/appointment");
         if (!response.ok) {
-          throw new Error("Failed to fetch appointments")
+          throw new Error("Failed to fetch appointments");
         }
-        const data = await response.json()
-        setAppointments(data)
+        const data = await response.json();
+        setAppointments(data);
       } catch (err) {
-        setError("Error fetching appointments. Please try again later.")
-        console.error("Error fetching appointments:", err)
+        setError("Error fetching appointments. Please try again later.");
+        console.error("Error fetching appointments:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchAppointments()
-  }, [])
-
-
+    fetchAppointments();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50">
       {/* Mobile Sidebar Toggle */}
-      <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden" onClick={toggleSidebar}>
-        {isSidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="fixed top-4 left-4 z-50 lg:hidden"
+        onClick={toggleSidebar}
+      >
+        {isSidebarOpen ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <Menu className="h-6 w-6" />
+        )}
       </Button>
       {/* Main Content */}
       <div className="lg:pl-16 flex flex-col lg:flex-row">
@@ -196,7 +215,9 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold text-lg">Check your condition</h3>
-              <p className="text-sm text-zinc-600">Check your every situation and your activities</p>
+              <p className="text-sm text-zinc-600">
+                Check your every situation and your activities
+              </p>
               <Button
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                 onClick={() => router.push("/health")}
@@ -212,7 +233,9 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Hi, {user.name || "Patient"}</h1>
+                <h1 className="text-2xl font-bold">
+                  Hi, {user.name || "Patient"}
+                </h1>
                 <p className="text-zinc-600">Let's track your health daily!</p>
               </div>
               <div className="flex items-center gap-4">
@@ -230,7 +253,9 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
 
             {/* Upcoming Appointment */}
             <Card className="p-6 mb-8">
-              <h3 className="text-lg font-semibold mb-4">Upcoming appointment</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                Upcoming appointment
+              </h3>
               {isLoading ? (
                 <p>Loading appointments...</p>
               ) : error ? (
@@ -246,7 +271,10 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <Image
-                          src={appointment.doctor.image || "/placeholder-doctor.jpg"}
+                          src={
+                            appointment.doctor.image ||
+                            "/placeholder-doctor.jpg"
+                          }
                           alt="Doctor"
                           width={60}
                           height={60}
@@ -254,9 +282,12 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                         />
                         <div>
                           <p className="font-medium">
-                            Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}
+                            Dr. {appointment.doctor.firstName}{" "}
+                            {appointment.doctor.lastName}
                           </p>
-                          <p className="text-sm text-zinc-600">{appointment.doctor.spiciality}</p>
+                          <p className="text-sm text-zinc-600">
+                            {appointment.doctor.spiciality}
+                          </p>
                         </div>
                       </div>
                       <div>
@@ -270,7 +301,7 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                           }
                           onClick={() => {
                             if (isAppointmentActive(appointment.dateTime)) {
-                              router.push("/reciever")
+                              router.push("/reciever");
                             }
                           }}
                           disabled={
@@ -291,14 +322,18 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                   <div className="flex items-center gap-4 text-sm text-zinc-600 mt-4">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      {appointments[0] && new Date(appointments[0].dateTime).toLocaleDateString()}
+                      {appointments[0] &&
+                        new Date(appointments[0].dateTime).toLocaleDateString()}
                     </div>
                     <div>
                       {appointments[0] &&
-                        new Date(appointments[0].dateTime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        new Date(appointments[0].dateTime).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
                     </div>
                   </div>
                 </div>
@@ -322,7 +357,9 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
               {/* Daily Progress Card */}
               <Card className="p-6 bg-emerald-50">
                 <h3 className="text-lg font-semibold mb-2">Daily progress</h3>
-                <p className="text-sm text-zinc-600 mb-6">Keep improving the quality of your health</p>
+                <p className="text-sm text-zinc-600 mb-6">
+                  Keep improving the quality of your health
+                </p>
                 <div className="relative w-32 h-32 mx-auto">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-2xl font-bold">80%</span>
@@ -341,7 +378,9 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                 <Sparkles className="h-5 w-5 text-emerald-500" />
                 <h3 className="text-lg font-semibold">AI Health Insights</h3>
               </div>
-              <p className="text-zinc-600 mb-4">Get personalized health recommendations based on your data</p>
+              <p className="text-zinc-600 mb-4">
+                Get personalized health recommendations based on your data
+              </p>
               <Button
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                 onClick={() => router.push("/health")}
@@ -383,13 +422,26 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold">
-                {currentDate.toLocaleString("default", { month: "long", year: "numeric" })}
+                {currentDate.toLocaleString("default", {
+                  month: "long",
+                  year: "numeric",
+                })}
               </h3>
               <div className="flex gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={prevMonth}
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={nextMonth}
+                >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -405,11 +457,11 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                 <div key={`empty-${i}`} />
               ))}
               {Array.from({ length: daysInMonth }, (_, i) => {
-                const day = i + 1
+                const day = i + 1;
                 const isToday =
                   day === new Date().getDate() &&
                   currentDate.getMonth() === new Date().getMonth() &&
-                  currentDate.getFullYear() === new Date().getFullYear()
+                  currentDate.getFullYear() === new Date().getFullYear();
                 return (
                   <Button
                     key={day}
@@ -418,7 +470,7 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                   >
                     {day}
                   </Button>
-                )
+                );
               })}
             </div>
           </div>
@@ -439,12 +491,16 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                 >
                   <div
                     className={`w-10 h-10 rounded-full ${
-                      isAppointmentStartingSoon(appointment.dateTime) ? "bg-emerald-100" : "bg-blue-100"
+                      isAppointmentStartingSoon(appointment.dateTime)
+                        ? "bg-emerald-100"
+                        : "bg-blue-100"
                     } flex items-center justify-center`}
                   >
                     <VideoIcon
                       className={`h-5 w-5 ${
-                        isAppointmentStartingSoon(appointment.dateTime) ? "text-emerald-500" : "text-blue-500"
+                        isAppointmentStartingSoon(appointment.dateTime)
+                          ? "text-emerald-500"
+                          : "text-blue-500"
                       }`}
                     />
                   </div>
@@ -474,7 +530,11 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
                 </div>
               ))
             )}
-            <Button variant="link" className="w-full text-emerald-600" onClick={() => router.push("/totalapp")}>
+            <Button
+              variant="link"
+              className="w-full text-emerald-600"
+              onClick={() => router.push("/totalapp")}
+            >
               See More Schedule
             </Button>
           </div>
@@ -498,6 +558,5 @@ export default function Dashboard({ user, healthData }: DashboardProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
-

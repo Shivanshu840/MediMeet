@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOption } from "../../../lib/action";
-import prisma from "@repo/db/clients";
-import { InferenceClient } from "@huggingface/inference";
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth/next"
+import { authOption } from "../../../lib/action"
+import prisma from "@repo/db/clients"
+import { InferenceClient } from "@huggingface/inference"
 
-const apiKey = process.env.HUGGINGFACE_API_KEY;
-const client = new InferenceClient(apiKey);
+const apiKey = process.env.HUGGINGFACE_API_KEY
+const client = new InferenceClient(apiKey)
 
 export async function GET(req: Request) {
-  const session = await getServerSession(authOption);
+  const session = await getServerSession(authOption)
 
   if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
@@ -19,10 +19,10 @@ export async function GET(req: Request) {
       where: {
         userId: session.user.id,
       },
-    });
+    })
 
     if (!healthData) {
-      return NextResponse.json({ error: "Health data not found" }, { status: 404 });
+      return NextResponse.json({ error: "Health data not found" }, { status: 404 })
     }
 
     const suggestions = await prisma.healthSuggestion.findMany({
@@ -33,33 +33,42 @@ export async function GET(req: Request) {
         createdAt: "desc",
       },
       take: 5,
-    });
+    })
 
     return NextResponse.json({
       message: "Health data and suggestions retrieved successfully",
       data: healthData,
       suggestions,
-    });
+    })
   } catch (error) {
-    console.error("Error fetching health data:", error);
-    return NextResponse.json({ error: "Failed to fetch health data" }, { status: 500 });
+    console.error("Error fetching health data:", error)
+    return NextResponse.json({ error: "Failed to fetch health data" }, { status: 500 })
   }
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOption);
+  const session = await getServerSession(authOption)
 
   if (!session || !session.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
-    const body = await req.json();
+    const body = await req.json()
     let healthData = await prisma.health.findUnique({
       where: {
         userId: session.user.id,
       },
-    });
+    })
+
+    // Create a plain JavaScript object for bloodPressure
+    const bloodPressureData = {
+      systolic: body.bloodPressure?.systolic || 0,
+      diastolic: body.bloodPressure?.diastolic || 0,
+    }
+
+    // Create a plain JavaScript object for airQuality
+    const airQualityData = body.airQuality || { aqi: 0 }
 
     if (!healthData) {
       healthData = await prisma.health.create({
@@ -70,60 +79,69 @@ export async function POST(req: Request) {
           steps: body.steps || 0,
           heartRate: body.heartRate || 0,
           sleepTime: body.sleepTime || 0,
-          bloodPressure: {
-            systolic: body.bloodPressure?.systolic || 0,
-            diastolic: body.bloodPressure?.diastolic || 0,
-          },
+          bloodPressure: bloodPressureData, // Plain JavaScript object
           temperature: body.temperature || 0,
-          airQuality: body.airQuality || 0,
+          airQuality: airQualityData, // Plain JavaScript object
         },
-      });
+      })
     } else {
+      // Get existing bloodPressure data
+      const existingBloodPressure = healthData.bloodPressure as any
+
+      // Create updated bloodPressure object as a plain JavaScript object
+      const updatedBloodPressure = {
+        systolic: body.bloodPressure?.systolic ?? existingBloodPressure?.systolic ?? 0,
+        diastolic: body.bloodPressure?.diastolic ?? existingBloodPressure?.diastolic ?? 0,
+      }
+
+      // Get existing airQuality data
+      const existingAirQuality = healthData.airQuality as any
+
+      // Create updated airQuality object
+      const updatedAirQuality = body.airQuality ?? existingAirQuality ?? { aqi: 0 }
+
       healthData = await prisma.health.update({
         where: {
           userId: session.user.id,
         },
         data: {
-          weight: body.weight || healthData.weight,
-          foodCalories: body.foodCalories || healthData.foodCalories,
-          steps: body.steps || healthData.steps,
-          heartRate: body.heartRate || healthData.heartRate,
-          sleepTime: body.sleepTime || healthData.sleepTime,
-          bloodPressure: {
-            systolic: body.bloodPressure?.systolic || healthData.bloodPressure.systolic,
-            diastolic: body.bloodPressure?.diastolic || healthData.bloodPressure.diastolic,
-          },
-          temperature: body.temperature || healthData.temperature,
-          airQuality: body.airQuality || healthData.airQuality,
+          weight: body.weight ?? healthData.weight,
+          foodCalories: body.foodCalories ?? healthData.foodCalories,
+          steps: body.steps ?? healthData.steps,
+          heartRate: body.heartRate ?? healthData.heartRate,
+          sleepTime: body.sleepTime ?? healthData.sleepTime,
+          bloodPressure: updatedBloodPressure, // Plain JavaScript object
+          temperature: body.temperature ?? healthData.temperature,
+          airQuality: updatedAirQuality, // Plain JavaScript object
         },
-      });
+      })
     }
 
-    const analysis = await analyzeHealthData(healthData, session.user.id);
+    const analysis = await analyzeHealthData(healthData, session.user.id)
 
     if (analysis && analysis.error) {
-      return NextResponse.json({ error: analysis.error }, { status: analysis.status || 500 });
+      return NextResponse.json({ error: analysis.error }, { status: analysis.status || 500 })
     }
 
     return NextResponse.json({
       message: "Health data analyzed successfully",
       data: healthData,
       analysis,
-    });
+    })
   } catch (error) {
-    console.error("Error analyzing health data:", error);
-    return NextResponse.json({ error: "Failed to analyze health data" }, { status: 500 });
+    console.error("Error analyzing health data:", error)
+    return NextResponse.json({ error: "Failed to analyze health data" }, { status: 500 })
   }
 }
 
 async function analyzeHealthData(healthData: any, userId: string) {
   try {
-    const startTime = Date.now();
-    console.log("Starting health analysis at:", startTime);
+    const startTime = Date.now()
+    console.log("Starting health analysis at:", startTime)
 
-    const healthDataString = JSON.stringify(healthData);
+    const healthDataString = JSON.stringify(healthData)
 
-    const suggestion = await generateAIEmailContent(healthDataString);
+    const suggestion = await generateAIEmailContent(healthDataString)
 
     await prisma.healthSuggestion.create({
       data: {
@@ -131,13 +149,13 @@ async function analyzeHealthData(healthData: any, userId: string) {
         content: suggestion,
         createdAt: new Date(),
       },
-    });
+    })
 
-    console.log("Health analysis completed successfully after:", Date.now() - startTime, "ms");
-    return { suggestion };
+    console.log("Health analysis completed successfully after:", Date.now() - startTime, "ms")
+    return { suggestion }
   } catch (error: any) {
-    console.error("Error in analyzeHealthData:", error);
-    return { error: error.message || "Analysis failed", status: 500 };
+    console.error("Error in analyzeHealthData:", error)
+    return { error: error.message || "Analysis failed", status: 500 }
   }
 }
 
@@ -147,34 +165,35 @@ async function generateAIEmailContent(healthData: string): Promise<string> {
     try {
       const chatCompletion = await client.chatCompletion({
         model: "mistralai/Mistral-Nemo-Instruct-2407",
-          
         messages: [
           {
             role: "system",
-            content: "You are a professional health assistant. Provide brief, personalized health insights, exercise tips, and diet recommendations in English. Do not include greetings, subject lines, or bullet points. Respond in short, flowing sentences, and include relevant emojis. Keep the entire response under 50 words."
+            content:
+              "You are a professional health assistant. Provide brief, personalized health insights, exercise tips, and diet recommendations in English. Do not include greetings, subject lines, or bullet points. Respond in short, flowing sentences, and include relevant emojis. Keep the entire response under 50 words.",
           },
           {
             role: "user",
-            content: `User's Health Data: ${healthData}. Extract key health metrics and provide concise personalized feedback, exercise tips, and diet recommendations in short, flowing sentences, and include emojis.`
-          }
+            content: `User's Health Data: ${healthData}. Extract key health metrics and provide concise personalized feedback, exercise tips, and diet recommendations in short, flowing sentences, and include emojis.`,
+          },
         ],
         provider: "hf-inference",
         max_tokens: 500,
-      });
+      })
 
-      return chatCompletion.choices[0]?.message.content || "Couldn't generate feedback.";
+      return chatCompletion.choices[0]?.message.content || "Couldn't generate feedback."
     } catch (apiError) {
-      console.error("HuggingFace API Error:", apiError);
-      
+      console.error("HuggingFace API Error:", apiError)
+
       if (apiError instanceof Error) {
-        console.error("Error message:", apiError.message);
-        console.error("Error stack:", apiError.stack);
+        console.error("Error message:", apiError.message)
+        console.error("Error stack:", apiError.stack)
       }
-      
-      return "We couldn't generate feedback at this moment. API error occurred.";
+
+      return "We couldn't generate feedback at this moment. API error occurred."
     }
   } catch (error) {
-    console.error("Unexpected error in generateAIEmailContent:", error);
-    return "We couldn't generate feedback at this moment.";
+    console.error("Unexpected error in generateAIEmailContent:", error)
+    return "We couldn't generate feedback at this moment."
   }
 }
+

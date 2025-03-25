@@ -1,9 +1,8 @@
-
-import { Header } from "./Header"
-import { SummaryCards } from "./SummaryCard"
-import VirtualVisit from "./VirtualVisit"
-import { CheckReport } from "./checkReport"
-import { Messenger } from "./Messanger"
+import { Header } from "./Header";
+import { SummaryCards } from "./SummaryCard";
+import VirtualVisit from "./VirtualVisit";
+import { CheckReport } from "./checkReport";
+import { Messenger } from "./Messanger";
 
 export default function Dashboard() {
   return (
@@ -24,5 +23,5 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
-  )
+  );
 }

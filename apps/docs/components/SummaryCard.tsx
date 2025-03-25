@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@repo/ui/card"
-import { Users, MessageSquare, FileText } from 'lucide-react'
+import { Card, CardContent } from "@repo/ui/card";
+import { Users, MessageSquare, FileText } from "lucide-react";
 
 export function SummaryCards() {
   return (
@@ -41,5 +41,5 @@ export function SummaryCards() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

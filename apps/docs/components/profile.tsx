@@ -1,13 +1,23 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@repo/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import { User, Mail, Phone, MapPin, GraduationCap, Briefcase, Stethoscope, DollarSign, Upload } from 'lucide-react'
-import { CldUploadWidget } from 'next-cloudinary'
-import {Input} from "@repo/ui/input"
-import Textarea from "@repo/ui/textarea"
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import { Button } from "@repo/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  GraduationCap,
+  Briefcase,
+  Stethoscope,
+  DollarSign,
+  Upload,
+} from "lucide-react";
+import { CldUploadWidget } from "next-cloudinary";
+import { Input } from "@repo/ui/input";
+import Textarea from "@repo/ui/textarea";
+import Image from "next/image";
 
 interface DoctorData {
   id: string;
@@ -24,84 +34,94 @@ interface DoctorData {
 }
 
 export default function DoctorProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [doctorData, setDoctorData] = useState<DoctorData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false);
+  const [doctorData, setDoctorData] = useState<DoctorData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDoctorData()
-  }, [])
+    fetchDoctorData();
+  }, []);
 
   const fetchDoctorData = async () => {
     try {
-      const response = await fetch('/api/auth/doctor/profile')
+      const response = await fetch("/api/auth/doctor/profile");
       if (!response.ok) {
-        throw new Error('Failed to fetch doctor data')
+        throw new Error("Failed to fetch doctor data");
       }
-      const data = await response.json()
-      setDoctorData(data.doctor)
+      const data = await response.json();
+      setDoctorData(data.doctor);
     } catch (error) {
-      console.error('Error fetching doctor data:', error)
-      setError('Failed to load doctor data. Please try again.')
+      console.error("Error fetching doctor data:", error);
+      setError("Failed to load doctor data. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setDoctorData(prev => prev ? ({
-      ...prev,
-      [name]: value || null
-    }) : null)
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setDoctorData((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]: value || null,
+          }
+        : null,
+    );
+  };
 
   const handleUpdate = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/api/auth/doctor/profile', {
-        method: 'POST',
+      const response = await fetch("/api/auth/doctor/profile", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(doctorData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile')
+        throw new Error("Failed to update profile");
       }
 
-      const data = await response.json()
-      setDoctorData(data.doctor)
-      setIsEditing(false)
+      const data = await response.json();
+      setDoctorData(data.doctor);
+      setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error)
-      setError('Failed to update profile. Please try again.')
+      console.error("Error updating profile:", error);
+      setError("Failed to update profile. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleImageUpload = (result: any) => {
-    const imageUrl = result.info.secure_url
-    setDoctorData(prev => prev ? ({
-      ...prev,
-      image: imageUrl
-    }) : null)
-  }
+    const imageUrl = result.info.secure_url;
+    setDoctorData((prev) =>
+      prev
+        ? {
+            ...prev,
+            image: imageUrl,
+          }
+        : null,
+    );
+  };
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>
+    return <div>{error}</div>;
   }
 
   if (!doctorData) {
-    return <div>No doctor data available</div>
+    return <div>No doctor data available</div>;
   }
 
   return (
@@ -144,38 +164,50 @@ export default function DoctorProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">First Name:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    First Name:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="firstName"
-                      value={doctorData.firstName || ''}
+                      value={doctorData.firstName || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.firstName}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.firstName}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Last Name:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Last Name:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="lastName"
-                      value={doctorData.lastName || ''}
+                      value={doctorData.lastName || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.lastName}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.lastName}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Email:</span>
-                  <span className="text-sm text-slate-400">{doctorData.email}</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Email:
+                  </span>
+                  <span className="text-sm text-slate-400">
+                    {doctorData.email}
+                  </span>
                 </div>
               </div>
             </section>
@@ -187,62 +219,78 @@ export default function DoctorProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Stethoscope className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Specialty:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Specialty:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="specialty"
-                      value={doctorData.spiciality || ''}
+                      value={doctorData.spiciality || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.spiciality}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.spiciality}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Briefcase className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Experience:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Experience:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="experience"
-                      value={doctorData.experience || ''}
+                      value={doctorData.experience || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.experience}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.experience}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <GraduationCap className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Education:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Education:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="education"
-                      value={doctorData.education || ''}
+                      value={doctorData.education || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.education}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.education}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <DollarSign className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium text-slate-200">Fee:</span>
+                  <span className="text-sm font-medium text-slate-200">
+                    Fee:
+                  </span>
                   {isEditing ? (
                     <Input
                       type="text"
                       name="fee"
-                      value={doctorData.fee || ''}
+                      value={doctorData.fee || ""}
                       onChange={handleInputChange}
                       className="bg-slate-800 border-slate-700 text-white"
                     />
                   ) : (
-                    <span className="text-sm text-slate-400">{doctorData.fee}</span>
+                    <span className="text-sm text-slate-400">
+                      {doctorData.fee}
+                    </span>
                   )}
                 </div>
               </div>
@@ -254,17 +302,21 @@ export default function DoctorProfilePage() {
               </h2>
               <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4 text-blue-400" />
-                <span className="text-sm font-medium text-slate-200">Address:</span>
+                <span className="text-sm font-medium text-slate-200">
+                  Address:
+                </span>
                 {isEditing ? (
                   <Input
                     type="text"
                     name="address"
-                    value={doctorData.address || ''}
+                    value={doctorData.address || ""}
                     onChange={handleInputChange}
                     className="bg-slate-800 border-slate-700 text-white"
                   />
                 ) : (
-                  <span className="text-sm text-slate-400">{doctorData.address}</span>
+                  <span className="text-sm text-slate-400">
+                    {doctorData.address}
+                  </span>
                 )}
               </div>
             </section>
@@ -276,7 +328,7 @@ export default function DoctorProfilePage() {
               {isEditing ? (
                 <Textarea
                   name="about"
-                  value={doctorData.about || ''}
+                  value={doctorData.about || ""}
                   onChange={handleInputChange}
                   className="w-full bg-slate-800 border-slate-700 text-white"
                   rows={4}
@@ -295,7 +347,7 @@ export default function DoctorProfilePage() {
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Updating...' : 'Update'}
+                  {isLoading ? "Updating..." : "Update"}
                 </Button>
               ) : (
                 <Button
@@ -312,5 +364,5 @@ export default function DoctorProfilePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

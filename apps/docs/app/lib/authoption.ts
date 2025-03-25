@@ -2,7 +2,6 @@
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "@repo/db/clients";
 
-
 export const authOptionDoctor = {
   providers: [
     GoogleProvider({
@@ -61,6 +60,6 @@ export const authOptionDoctor = {
   },
 
   pages: {
-    signIn: '/doctor/signin'
-  }
+    signIn: "/doctor/signin",
+  },
 };

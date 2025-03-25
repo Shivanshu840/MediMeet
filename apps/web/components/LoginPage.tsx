@@ -1,61 +1,61 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@repo/ui/button"
-import { Input } from "@repo/ui/input"
-import { Stethoscope, AlertCircle } from "lucide-react"
-import { signIn } from 'next-auth/react'
-import Image from 'next/image'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@repo/ui/button";
+import { Input } from "@repo/ui/input";
+import { Stethoscope, AlertCircle } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const router = useRouter()
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
   async function onSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    setIsLoading(true)
-    setErrorMessage('')
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage("");
 
-    const result = await signIn('credentials', {
-      redirect: false, 
+    const result = await signIn("credentials", {
+      redirect: false,
       username,
       password,
-    })
+    });
 
-    setIsLoading(false)
+    setIsLoading(false);
 
     if (result?.error) {
-      console.error(result.error)
-      setErrorMessage('Invalid username or password. Please try again.')
+      console.error(result.error);
+      setErrorMessage("Invalid username or password. Please try again.");
     } else {
-      router.push('/home') 
+      router.push("/home");
     }
   }
 
   async function handleGoogleSignIn() {
-    setIsLoading(true)
-    setErrorMessage('')
+    setIsLoading(true);
+    setErrorMessage("");
 
     try {
-      const result = await signIn("google", { 
-        callbackUrl: '/home',
-        prompt: 'select_account'
-      })
-      
+      const result = await signIn("google", {
+        callbackUrl: "/home",
+        prompt: "select_account",
+      });
+
       if (result?.error) {
-        console.error(result.error)
-        setErrorMessage('Failed to sign in with Google. Please try again.')
+        console.error(result.error);
+        setErrorMessage("Failed to sign in with Google. Please try again.");
       }
       // Successful sign-in will be handled by the callbackUrl
     } catch (error) {
-      console.error(error)
-      setErrorMessage('An unexpected error occurred. Please try again.')
+      console.error(error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -63,7 +63,9 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
         <div className="text-center space-y-4 lg:order-2">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Medi Meet</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+            Medi Meet
+          </h1>
           <p className="text-sm md:text-base text-zinc-400">
             Unlock Your Path to Wellness with Medi Meet's Consultancy Platform
           </p>
@@ -81,7 +83,9 @@ export default function LoginPage() {
           <div className="flex justify-center mb-6 md:mb-8">
             <div className="flex items-center gap-2">
               <Stethoscope className="h-5 w-5 md:h-6 md:w-6 text-emerald-500" />
-              <span className="text-lg md:text-xl font-semibold text-white">MEDI MEET</span>
+              <span className="text-lg md:text-xl font-semibold text-white">
+                MEDI MEET
+              </span>
             </div>
           </div>
           {errorMessage && (
@@ -92,7 +96,10 @@ export default function LoginPage() {
           )}
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs md:text-sm text-zinc-400" htmlFor="email">
+              <label
+                className="text-xs md:text-sm text-zinc-400"
+                htmlFor="email"
+              >
                 Username or email
               </label>
               <Input
@@ -110,7 +117,10 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs md:text-sm text-zinc-400" htmlFor="password">
+                <label
+                  className="text-xs md:text-sm text-zinc-400"
+                  htmlFor="password"
+                >
                   Password
                 </label>
               </div>
@@ -131,7 +141,11 @@ export default function LoginPage() {
                 Forgot password?
               </Button>
             </div>
-            <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm md:text-base" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm md:text-base"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
@@ -172,13 +186,13 @@ export default function LoginPage() {
           </Button>
           <div className="text-center text-xs md:text-sm text-zinc-400">
             Are you new?{" "}
-            <Button 
+            <Button
               type="button"
-              variant="link" 
-              className="text-emerald-400 font-normal" 
-              disabled={isLoading} 
+              variant="link"
+              className="text-emerald-400 font-normal"
+              disabled={isLoading}
               onClick={() => {
-                router.push("/signup")
+                router.push("/signup");
               }}
             >
               Create an Account
@@ -187,5 +201,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

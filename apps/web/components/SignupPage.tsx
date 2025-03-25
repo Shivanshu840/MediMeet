@@ -1,55 +1,52 @@
-'use client'
-import { useState } from 'react';
+"use client";
+import { useState } from "react";
 import { Stethoscope } from "lucide-react";
-import { useRouter } from 'next/navigation'
-import { Input } from "@repo/ui/input"
-import { Label } from '@repo/ui/label';
-import { Button } from '@repo/ui/button';
-import Image from 'next/image'
+import { useRouter } from "next/navigation";
+import { Input } from "@repo/ui/input";
+import { Label } from "@repo/ui/label";
+import { Button } from "@repo/ui/button";
+import Image from "next/image";
 
 export default function SignupPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: ''
-  })
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prevData => ({
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   async function onSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
 
     try {
-      
-      const response = await fetch('/api/auth/userAuth', {
-        method: 'POST',
+      const response = await fetch("/api/auth/userAuth", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to sign up')
+        throw new Error("Failed to sign up");
       }
 
-      
-      router.push('/signin')
+      router.push("/signin");
     } catch (error) {
-      console.error('Error during signup:', error)
-      
+      console.error("Error during signup:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -57,9 +54,12 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center bg-zinc-900/80 rounded-lg shadow-lg overflow-hidden backdrop-blur-sm">
         <div className="p-6 lg:p-8 bg-emerald-900/20 relative hidden lg:block">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-white">Join Medi Meet</h2>
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-white">
+            Join Medi Meet
+          </h2>
           <p className="text-sm lg:text-base text-zinc-300 mb-8">
-            Start your journey to better health by scheduling your consultancy with Medi Meet's Healthcare Platform.
+            Start your journey to better health by scheduling your consultancy
+            with Medi Meet's Healthcare Platform.
           </p>
           <div className="relative h-[200px] lg:h-[400px]">
             <Image
@@ -75,7 +75,9 @@ export default function SignupPage() {
           <div className="flex justify-center mb-6 lg:mb-8">
             <div className="flex items-center gap-2">
               <Stethoscope className="h-6 w-6 lg:h-8 lg:w-8 text-emerald-500" />
-              <span className="text-xl lg:text-2xl font-semibold text-white">MEDI MEET</span>
+              <span className="text-xl lg:text-2xl font-semibold text-white">
+                MEDI MEET
+              </span>
             </div>
           </div>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -172,7 +174,7 @@ export default function SignupPage() {
               className="text-emerald-400 hover:text-emerald-300 text-xs sm:text-sm"
               disabled={isLoading}
               onClick={() => {
-                router.push("/signin")
+                router.push("/signin");
               }}
             >
               Sign in
@@ -181,5 +183,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

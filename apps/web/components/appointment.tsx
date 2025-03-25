@@ -1,59 +1,73 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { redirect, useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { format } from 'date-fns'
-import { Calendar as CalendarIcon, Clock } from "lucide-react"
-import { Button } from "@repo/ui/button"
-import { Input } from "@repo/ui/input"
-import { Label } from "@repo/ui/label"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@repo/ui/card"
-import { Calendar } from "@repo/ui/calender"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Button } from "@repo/ui/button";
+import { Input } from "@repo/ui/input";
+import { Label } from "@repo/ui/label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@repo/ui/card";
+import { Calendar } from "@repo/ui/calender";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@repo/ui/popover";
 
 type Doctor = {
-  id: string
-  firstName: string | null
-  lastName: string | null
-  spiciality: string | null
-  image: string | null
-}
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  spiciality: string | null;
+  image: string | null;
+};
 
 type NewAppointmentFormProps = {
-  doctors: Doctor[]
-  createAppointment: (formData: FormData) => Promise<void>
-}
+  doctors: Doctor[];
+  createAppointment: (formData: FormData) => Promise<void>;
+};
 
-export default function NewAppointmentForm({ doctors, createAppointment }: NewAppointmentFormProps) {
-  const router = useRouter()
-  const [date, setDate] = useState<Date | undefined>(undefined)
-  const [selectedDoctor, setSelectedDoctor] = useState("")
+export default function NewAppointmentForm({
+  doctors,
+  createAppointment,
+}: NewAppointmentFormProps) {
+  const router = useRouter();
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [selectedDoctor, setSelectedDoctor] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     if (date) {
-      formData.set('dateTime', date.toISOString())
+      formData.set("dateTime", date.toISOString());
     }
-     await createAppointment(formData)
-     return router.push("/home")
-    
-    
-  }
+    await createAppointment(formData);
+    return router.push("/home");
+  };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (date) {
-      const [hours, minutes] = e.target.value.split(':').map(Number)
+      const [hours, minutes] = e.target.value.split(":").map(Number);
       if (hours !== undefined && minutes !== undefined) {
-        const newDate = new Date(date)
-        newDate.setHours(hours)
-        newDate.setMinutes(minutes)
-        setDate(newDate)
+        const newDate = new Date(date);
+        newDate.setHours(hours);
+        newDate.setMinutes(minutes);
+        setDate(newDate);
       }
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-cyan-50 flex items-center justify-center p-4">
@@ -78,16 +92,17 @@ export default function NewAppointmentForm({ doctors, createAppointment }: NewAp
             </div>
             <div className="grid gap-2">
               <Label htmlFor="doctor">Select Doctor</Label>
-              <Select onValueChange={setSelectedDoctor} value={selectedDoctor} name="doctorId">
+              <Select
+                onValueChange={setSelectedDoctor}
+                value={selectedDoctor}
+                name="doctorId"
+              >
                 <SelectTrigger id="doctor" className="w-full">
                   <SelectValue placeholder="Choose your specialist" />
                 </SelectTrigger>
                 <SelectContent>
                   {doctors.map((doctor) => (
-                    <SelectItem
-                      key={doctor.id}
-                      value={doctor.id}
-                    >
+                    <SelectItem key={doctor.id} value={doctor.id}>
                       <div className="flex items-center gap-3">
                         {doctor.image && (
                           <Image
@@ -120,7 +135,11 @@ export default function NewAppointmentForm({ doctors, createAppointment }: NewAp
                     className={`w-full justify-start text-left font-normal ${!date && "text-muted-foreground"}`}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP 'at' p") : <span>Pick a date and time</span>}
+                    {date ? (
+                      format(date, "PPP 'at' p")
+                    ) : (
+                      <span>Pick a date and time</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -130,8 +149,8 @@ export default function NewAppointmentForm({ doctors, createAppointment }: NewAp
                     onSelect={setDate}
                     disabled={(date) => {
                       const today = new Date();
-                      today.setHours(0, 0, 0, 0); 
-                      return date < today; 
+                      today.setHours(0, 0, 0, 0);
+                      return date < today;
                     }}
                   />
                   <div className="p-3 border-t">
@@ -154,7 +173,7 @@ export default function NewAppointmentForm({ doctors, createAppointment }: NewAp
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push('/home')}
+              onClick={() => router.push("/home")}
             >
               Cancel
             </Button>
@@ -168,5 +187,5 @@ export default function NewAppointmentForm({ doctors, createAppointment }: NewAp
         </form>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,19 +1,19 @@
-import { NextResponse } from 'next/server'
-import prisma from "@repo/db/clients"
-import { getServerSession } from "next-auth/next"
-import { authOptionDoctor } from '../../../lib/authoption'
+import { NextResponse } from "next/server";
+import prisma from "@repo/db/clients";
+import { getServerSession } from "next-auth/next";
+import { authOptionDoctor } from "../../../lib/authoption";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptionDoctor)
+  const session = await getServerSession(authOptionDoctor);
 
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const doctorId = session.user.id
+  const doctorId = session.user.id;
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   try {
     const appointments = await prisma.appointment.findMany({
@@ -33,15 +33,15 @@ export async function GET(request: Request) {
         },
       },
       orderBy: {
-        dateTime: 'asc',
+        dateTime: "asc",
       },
-    })
+    });
 
     const appointmentsWithHealth = await Promise.all(
-      appointments.map(async (appointment:any) => {
+      appointments.map(async (appointment: any) => {
         const health = await prisma.health.findUnique({
           where: {
-            userId: appointment.user.id
+            userId: appointment.user.id,
           },
           select: {
             weight: true,
@@ -53,19 +53,22 @@ export async function GET(request: Request) {
             temperature: true,
             airQuality: true,
             lastUpdated: true,
-          }
-        })
+          },
+        });
 
         return {
           ...appointment,
-          health
-        }
-      })
-    )
+          health,
+        };
+      }),
+    );
 
-    return NextResponse.json(appointmentsWithHealth)
+    return NextResponse.json(appointmentsWithHealth);
   } catch (error) {
-    console.error('Error fetching appointments:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("Error fetching appointments:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

@@ -28,13 +28,10 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
   const [processedData, setProcessedData] = useState<HealthMetric[]>(defaultHealthData)
 
   useEffect(() => {
- 
     if (healthData && "data" in healthData && healthData.data) {
-   
       const apiData = healthData.data
       const formattedDate = new Date(apiData.updatedAt).toLocaleDateString("en-US", { weekday: "short" })
 
-     
       const newData: HealthMetric[] = [
         {
           date: formattedDate,
@@ -42,23 +39,24 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
           steps: apiData.steps,
           sleepHours: apiData.sleepTime / 60,
         },
-        ...defaultHealthData.slice(1), 
+        ...defaultHealthData.slice(1),
       ]
 
       setProcessedData(newData)
     } else if (Array.isArray(healthData)) {
-   
       setProcessedData(healthData)
     } else {
-     
       setProcessedData(defaultHealthData)
     }
   }, [healthData])
 
-  const getChartValue = (value: number, metric: string) => {
+  // Fix: Improve typing and ensure a number is always returned
+  const getChartValue = (value: number, metric: string): number => {
     if (metric === "heartRate") return ((value - 60) / 30) * 100
     if (metric === "steps") return (value / 12000) * 100
     if (metric === "sleepHours") return ((value - 6) / 4) * 100
+    // Default return value to handle any other case
+    return 0
   }
 
   return (
@@ -84,7 +82,7 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
             points={processedData
               .map((data, index) => {
                 const x = index * (100 / (processedData.length - 1))
-                const y  = 100 - getChartValue(data[selectedMetric], selectedMetric)
+                const y = 100 - getChartValue(data[selectedMetric], selectedMetric)
                 return `${x},${y}`
               })
               .join(" ")}
@@ -108,7 +106,7 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
                   style={{ marginBottom: `${value}%` }}
                 />
                 <span className="text-xs text-gray-500 absolute -bottom-6">{data.date}</span>
-                {index === 0 && "data" in healthData && healthData.data && (
+                {index === 0 && healthData && "data" in healthData && healthData.data && (
                   <span className="absolute -top-6 text-xs font-medium text-emerald-600">Latest</span>
                 )}
               </div>

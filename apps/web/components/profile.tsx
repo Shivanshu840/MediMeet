@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@repo/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import { User, Mail, Phone, MapPin, Cake, Users, Upload } from "lucide-react"
-import { CldUploadWidget } from 'next-cloudinary'
+import { useState, useEffect } from "react";
+import { Button } from "@repo/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card";
+import { User, Mail, Phone, MapPin, Cake, Users, Upload } from "lucide-react";
+import { CldUploadWidget } from "next-cloudinary";
 
 interface UserData {
   firstName: string | null;
@@ -18,84 +18,94 @@ interface UserData {
 }
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [userData, setUserData] = useState<UserData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchUserData()
-  }, [])
+    fetchUserData();
+  }, []);
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/auth/update-profile')
+      const response = await fetch("/api/auth/update-profile");
       if (!response.ok) {
-        throw new Error('Failed to fetch user data')
+        throw new Error("Failed to fetch user data");
       }
-      const data = await response.json()
-      setUserData(data.user)
+      const data = await response.json();
+      setUserData(data.user);
     } catch (error) {
-      console.error('Error fetching user data:', error)
-      setError('Failed to load user data. Please try again.')
+      console.error("Error fetching user data:", error);
+      setError("Failed to load user data. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setUserData(prev => prev ? ({
-      ...prev,
-      [name]: value || null
-    }) : null)
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setUserData((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]: value || null,
+          }
+        : null,
+    );
+  };
 
   const handleUpdate = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/api/auth/update-profile', {
-        method: 'POST',
+      const response = await fetch("/api/auth/update-profile", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to update profile')
+        throw new Error("Failed to update profile");
       }
 
-      const data = await response.json()
-      setUserData(data.user)
-      setIsEditing(false)
+      const data = await response.json();
+      setUserData(data.user);
+      setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error)
-      setError('Failed to update profile. Please try again.')
+      console.error("Error updating profile:", error);
+      setError("Failed to update profile. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleImageUpload = (result: any) => {
-    const imageUrl = result.info.secure_url
-    setUserData(prev => prev ? ({
-      ...prev,
-      image: imageUrl
-    }) : null)
-  }
+    const imageUrl = result.info.secure_url;
+    setUserData((prev) =>
+      prev
+        ? {
+            ...prev,
+            image: imageUrl,
+          }
+        : null,
+    );
+  };
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>
+    return <div>{error}</div>;
   }
 
   if (!userData) {
-    return <div>No user data available</div>
+    return <div>No user data available</div>;
   }
 
   return (
@@ -105,7 +115,11 @@ export default function ProfilePage() {
           <CardHeader className="flex flex-col items-center space-y-4 pb-6">
             <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center overflow-hidden border border-emerald-500/30">
               {userData.image ? (
-                <img src={userData.image} alt={`${userData.firstName} ${userData.lastName}`} className="w-full h-full object-cover" />
+                <img
+                  src={userData.image}
+                  alt={`${userData.firstName} ${userData.lastName}`}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-12 h-12 text-emerald-400" />
               )}
@@ -114,7 +128,10 @@ export default function ProfilePage() {
               {userData.firstName} {userData.lastName}
             </CardTitle>
             {isEditing && (
-              <CldUploadWidget uploadPreset="all_pictures" onUpload={handleImageUpload}>
+              <CldUploadWidget
+                uploadPreset="all_pictures"
+                onUpload={handleImageUpload}
+              >
                 {({ open }) => (
                   <Button
                     onClick={() => open()}
@@ -137,32 +154,40 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">First Name:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    First Name:
+                  </span>
                   {isEditing ? (
                     <input
                       type="text"
                       name="firstName"
-                      value={userData.firstName || ''}
+                      value={userData.firstName || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     />
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.firstName || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.firstName || "Not provided"}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Last Name:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Last Name:
+                  </span>
                   {isEditing ? (
                     <input
                       type="text"
                       name="lastName"
-                      value={userData.lastName || ''}
+                      value={userData.lastName || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     />
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.lastName || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.lastName || "Not provided"}
+                    </span>
                   )}
                 </div>
               </div>
@@ -175,37 +200,49 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Email:</span>
-                  <span className="text-sm text-emerald-400">{userData.email}</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Email:
+                  </span>
+                  <span className="text-sm text-emerald-400">
+                    {userData.email}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Phone:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Phone:
+                  </span>
                   {isEditing ? (
                     <input
                       type="text"
                       name="phone"
-                      value={userData.phone || ''}
+                      value={userData.phone || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     />
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.phone || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.phone || "Not provided"}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Address:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Address:
+                  </span>
                   {isEditing ? (
                     <input
                       type="text"
                       name="address"
-                      value={userData.address || ''}
+                      value={userData.address || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     />
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.address || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.address || "Not provided"}
+                    </span>
                   )}
                 </div>
               </div>
@@ -218,11 +255,13 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Gender:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Gender:
+                  </span>
                   {isEditing ? (
                     <select
                       name="gender"
-                      value={userData.gender || ''}
+                      value={userData.gender || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     >
@@ -232,22 +271,28 @@ export default function ProfilePage() {
                       <option value="Other">Other</option>
                     </select>
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.gender || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.gender || "Not provided"}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Cake className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-medium text-zinc-300">Date of Birth:</span>
+                  <span className="text-sm font-medium text-zinc-300">
+                    Date of Birth:
+                  </span>
                   {isEditing ? (
                     <input
                       type="date"
                       name="dob"
-                      value={userData.dob || ''}
+                      value={userData.dob || ""}
                       onChange={handleInputChange}
                       className="bg-zinc-800 border border-zinc-700 p-1 text-sm rounded text-white"
                     />
                   ) : (
-                    <span className="text-sm text-zinc-300">{userData.dob || 'Not provided'}</span>
+                    <span className="text-sm text-zinc-300">
+                      {userData.dob || "Not provided"}
+                    </span>
                   )}
                 </div>
               </div>
@@ -262,7 +307,7 @@ export default function ProfilePage() {
                   className="bg-emerald-500 hover:bg-emerald-600 text-white"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Updating...' : 'Update'}
+                  {isLoading ? "Updating..." : "Update"}
                 </Button>
               ) : (
                 <Button
@@ -279,5 +324,5 @@ export default function ProfilePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

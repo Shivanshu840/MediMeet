@@ -1,106 +1,123 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/card"
-import { Button } from "@repo/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@repo/ui/alert"
-import { Sparkles, AlertTriangle, CheckCircle, Info, ArrowRight, RefreshCw, Clock } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/card";
+import { Button } from "@repo/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@repo/ui/alert";
+import {
+  Sparkles,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  ArrowRight,
+  RefreshCw,
+  Clock,
+} from "lucide-react";
 
 interface HealthMetric {
-  status: "normal" | "low" | "high"
-  suggestion: string
+  status: "normal" | "low" | "high";
+  suggestion: string;
 }
 
 interface HealthAnalysis {
-  overall?: string
+  overall?: string;
   metrics?: {
-    weight: HealthMetric
-    foodCalories: HealthMetric
-    steps: HealthMetric
-    heartRate: HealthMetric
-    sleepTime: HealthMetric
-    bloodPressure: HealthMetric
-  }
-  suggestions?: string[]
-  suggestion?: string
-  processing?: boolean
-  error?: string
+    weight: HealthMetric;
+    foodCalories: HealthMetric;
+    steps: HealthMetric;
+    heartRate: HealthMetric;
+    sleepTime: HealthMetric;
+    bloodPressure: HealthMetric;
+  };
+  suggestions?: string[];
+  suggestion?: string;
+  processing?: boolean;
+  error?: string;
 }
 
 interface HealthSuggestion {
-  id: string
-  content: string
-  createdAt: string
+  id: string;
+  content: string;
+  createdAt: string;
 }
 
 export default function HealthAIInsights() {
-  const [analysis, setAnalysis] = useState<HealthAnalysis | null>(null)
-  const [suggestions, setSuggestions] = useState<HealthSuggestion[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-  const [pollingCount, setPollingCount] = useState(0)
+  const [analysis, setAnalysis] = useState<HealthAnalysis | null>(null);
+  const [suggestions, setSuggestions] = useState<HealthSuggestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pollingCount, setPollingCount] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchHealthInsights()
-  }, [])
+    fetchHealthInsights();
+  }, []);
 
   // Poll for updates if analysis is processing
   useEffect(() => {
     if (analysis?.processing && pollingCount < 3) {
       const timer = setTimeout(() => {
-        fetchHealthInsights()
-        setPollingCount((prev) => prev + 1)
-      }, 5000) // Poll every 5 seconds, up to 3 times
+        fetchHealthInsights();
+        setPollingCount((prev) => prev + 1);
+      }, 5000); // Poll every 5 seconds, up to 3 times
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [analysis, pollingCount])
+  }, [analysis, pollingCount]);
 
   const fetchHealthInsights = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch("/api/auth/health-ai")
+      const response = await fetch("/api/auth/health-ai");
       if (!response.ok) {
-        throw new Error("Failed to fetch health insights")
+        throw new Error("Failed to fetch health insights");
       }
-      const data = await response.json()
+      const data = await response.json();
 
       // If we have suggestions from the database, use those
       if (data.suggestions && data.suggestions.length > 0) {
-        setSuggestions(data.suggestions)
+        setSuggestions(data.suggestions);
       } else {
-        setSuggestions([])
+        setSuggestions([]);
       }
 
       // If we have analysis data, use it
       if (data.analysis) {
-        setAnalysis(data.analysis)
+        setAnalysis(data.analysis);
       } else {
         // Create a simple analysis object from the latest suggestion if available
         if (data.suggestions && data.suggestions.length > 0) {
           setAnalysis({
             suggestion: data.suggestions[0].content,
-          })
+          });
         } else {
-          setAnalysis(null)
+          setAnalysis(null);
         }
       }
     } catch (err) {
-      setError("Error fetching health insights. Please try again later.")
-      console.error("Error fetching health insights:", err)
-      setSuggestions([])
-      setAnalysis(null)
+      setError("Error fetching health insights. Please try again later.");
+      console.error("Error fetching health insights:", err);
+      setSuggestions([]);
+      setAnalysis(null);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const refreshAnalysis = async () => {
-    setRefreshing(true)
-    setPollingCount(0) // Reset polling count
+    setRefreshing(true);
+    setPollingCount(0); // Reset polling count
     try {
       const response = await fetch("/api/auth/health-ai", {
         method: "POST",
@@ -108,15 +125,15 @@ export default function HealthAIInsights() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({}), // This will use the latest health data from the database
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to refresh health analysis")
+        throw new Error("Failed to refresh health analysis");
       }
 
-      const data = await response.json()
+      const data = await response.json();
       if (data.analysis) {
-        setAnalysis(data.analysis)
+        setAnalysis(data.analysis);
 
         // If analysis is still processing, we'll start polling
         if (data.analysis.processing) {
@@ -125,40 +142,40 @@ export default function HealthAIInsights() {
       }
 
       // Fetch updated suggestions
-      await fetchHealthInsights()
+      await fetchHealthInsights();
     } catch (err) {
-      setError("Error refreshing health analysis. Please try again later.")
-      console.error("Error refreshing health analysis:", err)
+      setError("Error refreshing health analysis. Please try again later.");
+      console.error("Error refreshing health analysis:", err);
     } finally {
-      setRefreshing(false)
+      setRefreshing(false);
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "normal":
-        return "bg-emerald-100 text-emerald-800"
+        return "bg-emerald-100 text-emerald-800";
       case "low":
-        return "bg-amber-100 text-amber-800"
+        return "bg-amber-100 text-amber-800";
       case "high":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-zinc-100 text-zinc-800"
+        return "bg-zinc-100 text-zinc-800";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "normal":
-        return <CheckCircle className="h-4 w-4 text-emerald-500" />
+        return <CheckCircle className="h-4 w-4 text-emerald-500" />;
       case "low":
-        return <Info className="h-4 w-4 text-amber-500" />
+        return <Info className="h-4 w-4 text-amber-500" />;
       case "high":
-        return <AlertTriangle className="h-4 w-4 text-red-500" />
+        return <AlertTriangle className="h-4 w-4 text-red-500" />;
       default:
-        return <Info className="h-4 w-4 text-zinc-500" />
+        return <Info className="h-4 w-4 text-zinc-500" />;
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -168,7 +185,9 @@ export default function HealthAIInsights() {
             <Sparkles className="h-5 w-5 mr-2 text-emerald-500" />
             AI Health Insights
           </CardTitle>
-          <CardDescription className="text-zinc-400">Analyzing your health data...</CardDescription>
+          <CardDescription className="text-zinc-400">
+            Analyzing your health data...
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center py-8">
@@ -176,7 +195,7 @@ export default function HealthAIInsights() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -194,12 +213,15 @@ export default function HealthAIInsights() {
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button onClick={fetchHealthInsights} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+          <Button
+            onClick={fetchHealthInsights}
+            className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
             Try Again
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -217,7 +239,9 @@ export default function HealthAIInsights() {
             disabled={refreshing}
             className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+            />
             {refreshing ? "Refreshing..." : "Refresh"}
           </Button>
         </div>
@@ -228,10 +252,16 @@ export default function HealthAIInsights() {
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid grid-cols-2 mb-4 bg-zinc-800">
-            <TabsTrigger value="overview" className="text-zinc-300 data-[state=active]:bg-zinc-700">
+            <TabsTrigger
+              value="overview"
+              className="text-zinc-300 data-[state=active]:bg-zinc-700"
+            >
               Overview
             </TabsTrigger>
-            <TabsTrigger value="suggestions" className="text-zinc-300 data-[state=active]:bg-zinc-700">
+            <TabsTrigger
+              value="suggestions"
+              className="text-zinc-300 data-[state=active]:bg-zinc-700"
+            >
               History
             </TabsTrigger>
           </TabsList>
@@ -241,7 +271,9 @@ export default function HealthAIInsights() {
               <div className="space-y-4">
                 <Alert className="bg-zinc-800 border-zinc-700">
                   <Clock className="h-4 w-4 text-blue-500 animate-pulse" />
-                  <AlertTitle className="text-white">Analysis in Progress</AlertTitle>
+                  <AlertTitle className="text-white">
+                    Analysis in Progress
+                  </AlertTitle>
                   <AlertDescription className="text-zinc-300">
                     {analysis.suggestion ||
                       "Your health data is being analyzed. Check back in a moment for personalized insights."}
@@ -250,9 +282,13 @@ export default function HealthAIInsights() {
 
                 {suggestions.length > 0 && (
                   <div className="mt-4">
-                    <h3 className="text-sm font-medium text-zinc-400 mb-2">Previous Insights</h3>
+                    <h3 className="text-sm font-medium text-zinc-400 mb-2">
+                      Previous Insights
+                    </h3>
                     <Card className="bg-zinc-800 border-zinc-700">
-                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[0]?.content}</CardContent>
+                      <CardContent className="py-3 text-zinc-300 text-sm">
+                        {suggestions[0]?.content}
+                      </CardContent>
                     </Card>
                   </div>
                 )}
@@ -262,14 +298,20 @@ export default function HealthAIInsights() {
                 <Alert className="bg-zinc-800 border-zinc-700">
                   <Info className="h-4 w-4 text-emerald-500" />
                   <AlertTitle className="text-white">Health Insight</AlertTitle>
-                  <AlertDescription className="text-zinc-300">{analysis.suggestion}</AlertDescription>
+                  <AlertDescription className="text-zinc-300">
+                    {analysis.suggestion}
+                  </AlertDescription>
                 </Alert>
 
                 {suggestions.length > 1 && (
                   <div className="mt-4">
-                    <h3 className="text-sm font-medium text-zinc-400 mb-2">Previous Insights</h3>
+                    <h3 className="text-sm font-medium text-zinc-400 mb-2">
+                      Previous Insights
+                    </h3>
                     <Card className="bg-zinc-800 border-zinc-700">
-                      <CardContent className="py-3 text-zinc-300 text-sm">{suggestions[1]?.content}</CardContent>
+                      <CardContent className="py-3 text-zinc-300 text-sm">
+                        {suggestions[1]?.content}
+                      </CardContent>
                     </Card>
                   </div>
                 )}
@@ -278,14 +320,19 @@ export default function HealthAIInsights() {
               <div className="space-y-4">
                 <Alert className="bg-zinc-800 border-zinc-700">
                   <Info className="h-4 w-4 text-emerald-500" />
-                  <AlertTitle className="text-white">Latest Health Insight</AlertTitle>
-                  <AlertDescription className="text-zinc-300">{suggestions[0]?.content}</AlertDescription>
+                  <AlertTitle className="text-white">
+                    Latest Health Insight
+                  </AlertTitle>
+                  <AlertDescription className="text-zinc-300">
+                    {suggestions[0]?.content}
+                  </AlertDescription>
                 </Alert>
               </div>
             ) : (
               <div className="text-center py-8">
                 <p className="text-zinc-400">
-                  No health insights available yet. Click refresh to generate new insights.
+                  No health insights available yet. Click refresh to generate
+                  new insights.
                 </p>
               </div>
             )}
@@ -295,7 +342,10 @@ export default function HealthAIInsights() {
             {suggestions.length > 0 ? (
               <div className="space-y-3">
                 {suggestions.map((suggestion, index) => (
-                  <div key={suggestion.id} className="p-3 rounded-lg bg-zinc-800 border border-zinc-700">
+                  <div
+                    key={suggestion.id}
+                    className="p-3 rounded-lg bg-zinc-800 border border-zinc-700"
+                  >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center text-emerald-500 text-xs font-medium">
                         {index + 1}
@@ -303,7 +353,8 @@ export default function HealthAIInsights() {
                       <div>
                         <p className="text-zinc-300">{suggestion.content}</p>
                         <p className="text-xs text-zinc-500 mt-1">
-                          {new Date(suggestion.createdAt).toLocaleDateString()} at{" "}
+                          {new Date(suggestion.createdAt).toLocaleDateString()}{" "}
+                          at{" "}
                           {new Date(suggestion.createdAt).toLocaleTimeString()}
                         </p>
                       </div>
@@ -313,7 +364,10 @@ export default function HealthAIInsights() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-zinc-400">No suggestions available yet. Click refresh to generate new insights.</p>
+                <p className="text-zinc-400">
+                  No suggestions available yet. Click refresh to generate new
+                  insights.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -322,13 +376,12 @@ export default function HealthAIInsights() {
       <CardFooter>
         <Button
           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-          onClick={() => (window.location.href = "/health")}
+          onClick={() => router.push("/health")}
         >
           View Full Health Dashboard
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

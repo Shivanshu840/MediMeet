@@ -1,21 +1,19 @@
-import { NextResponse } from 'next/server'
-import prisma from "@repo/db/clients"
-import { getServerSession } from "next-auth/next"
-import { authOptionDoctor } from '../../../lib/authoption'
-
-
+import { NextResponse } from "next/server";
+import prisma from "@repo/db/clients";
+import { getServerSession } from "next-auth/next";
+import { authOptionDoctor } from "../../../lib/authoption";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptionDoctor)
+  const session = await getServerSession(authOptionDoctor);
 
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const doctorId = session.user.id
+  const doctorId = session.user.id;
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   try {
     const appointments = await prisma.appointment.findMany({
@@ -34,13 +32,16 @@ export async function GET(request: Request) {
         },
       },
       orderBy: {
-        dateTime: 'asc',
+        dateTime: "asc",
       },
-    })
+    });
 
-    return NextResponse.json(appointments)
+    return NextResponse.json(appointments);
   } catch (error) {
-    console.error('Error fetching appointments:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("Error fetching appointments:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

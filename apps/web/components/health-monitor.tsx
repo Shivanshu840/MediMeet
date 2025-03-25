@@ -28,7 +28,10 @@ export default function HealthMonitor() {
     diastolic: 70,
   });
   const [temperature, setTemperature] = useState(37.1);
-  const [airQuality, setAirQuality] = useState({ aqi: 0, status: "Loading..." });
+  const [airQuality, setAirQuality] = useState({
+    aqi: 0,
+    status: "Loading...",
+  });
   const [location, setLocation] = useState("");
   const [sleepTime, setSleepTime] = useState(7.5);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -72,7 +75,7 @@ export default function HealthMonitor() {
   const fetchAirQuality = async (city: string) => {
     try {
       const response = await fetch(
-        `https://api.waqi.info/feed/${city}/?token=YOUR_API_TOKEN`
+        `https://api.waqi.info/feed/${city}/?token=YOUR_API_TOKEN`,
       );
       const data = await response.json();
       if (data.status === "ok") {
@@ -244,7 +247,10 @@ export default function HealthMonitor() {
                 Lost 0.4kg
               </span>
             </div>
-            <Progress value={74.2} className="h-2 bg-zinc-800 dark:bg-zinc-700" />
+            <Progress
+              value={74.2}
+              className="h-2 bg-zinc-800 dark:bg-zinc-700"
+            />
             <Input
               type="number"
               value={weight}
@@ -263,7 +269,10 @@ export default function HealthMonitor() {
               {foodCalories}
               <span className="text-sm text-zinc-400 ml-1">/1,342 kCal</span>
             </p>
-            <Progress value={(foodCalories / 1342) * 100} className="h-2 bg-zinc-800 dark:bg-zinc-700" />
+            <Progress
+              value={(foodCalories / 1342) * 100}
+              className="h-2 bg-zinc-800 dark:bg-zinc-700"
+            />
             <Input
               type="number"
               value={foodCalories}
@@ -278,7 +287,9 @@ export default function HealthMonitor() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-medium text-zinc-400">Daily Steps</h3>
-              <p className="text-3xl font-bold text-white">{steps.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-white">
+                {steps.toLocaleString()}
+              </p>
               <p className="text-sm text-zinc-400">Goal: 10,000 Steps</p>
             </div>
             <div className="relative w-24 h-24">
@@ -349,12 +360,14 @@ export default function HealthMonitor() {
             <h3 className="text-sm font-medium text-zinc-400">Sleep Time</h3>
             <div className="flex items-center justify-between">
               <p className="text-2xl font-bold text-white">
-                {sleepTime.toFixed(1)} <span className="text-sm text-zinc-400">hrs</span>
+                {sleepTime.toFixed(1)}{" "}
+                <span className="text-sm text-zinc-400">hrs</span>
               </p>
               <Moon className="h-8 w-8 text-blue-400" />
             </div>
             <p className="text-sm font-medium text-zinc-400">
-              Status: {getSleepStatus(sleepTime).status} {getSleepStatus(sleepTime).emoji}
+              Status: {getSleepStatus(sleepTime).status}{" "}
+              {getSleepStatus(sleepTime).emoji}
             </p>
             <Input
               type="number"
@@ -387,8 +400,12 @@ export default function HealthMonitor() {
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-zinc-400">Blood Status</h3>
             <div className="flex items-baseline">
-              <p className="text-2xl font-bold text-white">{bloodPressure.systolic}</p>
-              <span className="text-zinc-400 ml-1">/{bloodPressure.diastolic}</span>
+              <p className="text-2xl font-bold text-white">
+                {bloodPressure.systolic}
+              </p>
+              <span className="text-zinc-400 ml-1">
+                /{bloodPressure.diastolic}
+              </span>
             </div>
             <div className="flex space-x-2">
               <Input
@@ -414,7 +431,9 @@ export default function HealthMonitor() {
             <h3 className="text-sm font-medium text-zinc-400">Temperature</h3>
             <div className="flex items-center">
               <Thermometer className="h-5 w-5 text-zinc-400 mr-2" />
-              <p className="text-2xl font-bold text-white">{temperature.toFixed(1)}°</p>
+              <p className="text-2xl font-bold text-white">
+                {temperature.toFixed(1)}°
+              </p>
             </div>
             <Input
               type="number"
@@ -471,8 +490,5 @@ export default function HealthMonitor() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
-
-
-

@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useSession, signOut } from "next-auth/react"
-import { Button } from "@repo/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
-import { Bell, Search } from 'lucide-react'
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { Button } from "@repo/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar";
+import { Bell, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function Header() {
-  const { data: session } = useSession()
-  const [showDropdown, setShowDropdown] = useState(false)
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
-  const router = useRouter()
+  const { data: session } = useSession();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const router = useRouter();
 
-  const userName = session?.user?.name || "Guest"
-  const userImage = session?.user?.image || "/placeholder.svg"
+  const userName = session?.user?.name || "Guest";
+  const userImage = session?.user?.image || "/placeholder.svg";
 
   const handleLogout = () => {
-    signOut({ callbackUrl: "/doctor/signin" })
-  }
+    signOut({ callbackUrl: "/doctor/signin" });
+  };
 
-  const toggleDropdown = () => setShowDropdown((prev) => !prev)
+  const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   return (
     <>
@@ -32,17 +32,25 @@ export function Header() {
               new Date().getHours() < 12
                 ? "morning"
                 : new Date().getHours() < 18
-                ? "afternoon"
-                : "evening"
+                  ? "afternoon"
+                  : "evening"
             }, ${userName}`}
           </h1>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-slate-800">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white hover:bg-slate-800"
+          >
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-slate-800">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-400 hover:text-white hover:bg-slate-800"
+          >
             <Bell className="h-5 w-5" />
             <span className="sr-only">Notifications</span>
           </Button>
@@ -91,10 +99,18 @@ export function Header() {
               Are you sure you want to log out?
             </p>
             <div className="mt-4 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setShowLogoutConfirm(false)} className="text-slate-300 hover:text-white hover:bg-slate-800">
+              <Button
+                variant="ghost"
+                onClick={() => setShowLogoutConfirm(false)}
+                className="text-slate-300 hover:text-white hover:bg-slate-800"
+              >
                 Cancel
               </Button>
-              <Button variant="default" onClick={handleLogout} className="bg-blue-500 text-white hover:bg-blue-600">
+              <Button
+                variant="default"
+                onClick={handleLogout}
+                className="bg-blue-500 text-white hover:bg-blue-600"
+              >
                 Logout
               </Button>
             </div>
@@ -102,5 +118,5 @@ export function Header() {
         </div>
       )}
     </>
-  )
+  );
 }

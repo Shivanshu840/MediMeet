@@ -6,7 +6,7 @@ import { Heart } from "lucide-react"
 
 interface HealthMetric {
   date: string
-  heartRate: number
+  heartRate: number | null
   steps: number
   sleepHours: number
 }
@@ -37,18 +37,18 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
       <div className="h-48 bg-white rounded-lg p-4 border border-emerald-100">
         <div className="flex items-end h-full gap-2">
           {healthData.map((data, index) => {
-            // Calculate height based on selected metric
             let value = 0
             let maxValue = 100
 
             if (selectedMetric === "heartRate") {
-              value = data.heartRate
+              
+              value = data.heartRate ?? 0
               maxValue = 100
             } else if (selectedMetric === "steps") {
-              value = data.steps / 150 // Scale down steps
+              value = data.steps / 150
               maxValue = 100
             } else if (selectedMetric === "sleepHours") {
-              value = data.sleepHours * 10 // Scale up sleep hours
+              value = data.sleepHours * 10 
               maxValue = 100
             }
 
@@ -57,7 +57,7 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
             return (
               <div key={data.date} className="flex-1 flex flex-col items-center">
                 <div className="w-full h-full relative flex flex-col justify-end">
-                  {index > 0 && (
+                  {index > 0 && healthData[index - 1] && (
                     <div
                       className="absolute h-0.5 bg-emerald-300 z-0"
                       style={{
@@ -66,12 +66,11 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
                         left: "-50%",
                         transform: `rotate(${
                           Math.atan2(
-                            (healthData[index].heartRate - healthData[index - 1].heartRate) *
-                              (selectedMetric === "heartRate" ? 1 : 0) +
-                              (healthData[index].steps / 150 - healthData[index - 1].steps / 150) *
-                                (selectedMetric === "steps" ? 1 : 0) +
-                              (healthData[index].sleepHours * 10 - healthData[index - 1].sleepHours * 10) *
-                                (selectedMetric === "sleepHours" ? 1 : 0),
+                            selectedMetric === "heartRate"
+                              ? (data.heartRate ?? 0) - (healthData[index - 1]?.heartRate ?? 0)
+                              : selectedMetric === "steps"
+                                ? data.steps / 150 - (healthData[index - 1]?.steps ?? 0) / 150
+                                : data.sleepHours * 10 - (healthData[index - 1]?.sleepHours ?? 0) * 10,
                             100,
                           ) *
                           (180 / Math.PI)
@@ -118,7 +117,6 @@ export default function PatientActivityChart({ healthData = defaultHealthData }:
   )
 }
 
-// Default data if none is provided
 const defaultHealthData: HealthMetric[] = [
   { date: "Mon", heartRate: 72, steps: 5200, sleepHours: 7.2 },
   { date: "Tue", heartRate: 75, steps: 6800, sleepHours: 6.8 },

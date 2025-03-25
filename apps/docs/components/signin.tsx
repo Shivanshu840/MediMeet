@@ -1,23 +1,32 @@
-'use client'
+"use client";
 
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Button } from "@repo/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/card"
-import { FcGoogle } from 'react-icons/fc'
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Button } from "@repo/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/card";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignIn() {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' })
-  }
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-900/40">
       <Card className="w-[350px] bg-slate-950/80 border border-slate-800">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">MediMeet</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">
+            MediMeet
+          </CardTitle>
           <CardDescription className="text-slate-400">
             Sign in to your account using Google
           </CardDescription>
@@ -33,5 +42,5 @@ export default function SignIn() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,18 +1,16 @@
-import { NextResponse } from 'next/server'
-import { getServerSession } from "next-auth/next"
-import { authOption } from '../../../lib/action'
-import prisma from "@repo/db/clients"
-
-
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOption } from "../../../lib/action";
+import prisma from "@repo/db/clients";
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOption)
+  const session = await getServerSession(authOption);
 
   if (!session || !session.user || !session.user.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = session.user.id
+  const userId = session.user.id;
 
   try {
     const appointments = await prisma.appointment.findMany({
@@ -33,13 +31,16 @@ export async function GET(request: Request) {
         },
       },
       orderBy: {
-        dateTime: 'asc',
+        dateTime: "asc",
       },
-    })
+    });
 
-    return NextResponse.json(appointments)
+    return NextResponse.json(appointments);
   } catch (error) {
-    console.error('Error fetching appointments:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    console.error("Error fetching appointments:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

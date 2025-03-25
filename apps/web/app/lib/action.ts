@@ -9,10 +9,21 @@ export const authOption = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "email", type: "text", placeholder: "johndoe@gmail.com" },
-        password: { label: "password", type: "password", placeholder: "password" },
+        username: {
+          label: "email",
+          type: "text",
+          placeholder: "johndoe@gmail.com",
+        },
+        password: {
+          label: "password",
+          type: "password",
+          placeholder: "password",
+        },
       },
-      async authorize(credentials?: { username: string; password: string }): Promise<User | null> {
+      async authorize(credentials?: {
+        username: string;
+        password: string;
+      }): Promise<User | null> {
         if (!credentials) {
           return null;
         }
@@ -22,18 +33,21 @@ export const authOption = {
         });
 
         if (existingUser && existingUser.password) {
-          const passwordValidation = await compare(credentials.password, existingUser.password);
+          const passwordValidation = await compare(
+            credentials.password,
+            existingUser.password,
+          );
 
           if (passwordValidation) {
             return {
               id: existingUser.id,
               email: existingUser.email || "",
-              name: existingUser.firstName || "", 
+              name: existingUser.firstName || "",
               image: existingUser.image || "",
-              gender: existingUser.gender || "", 
+              gender: existingUser.gender || "",
               birthday: existingUser.dob || "",
               phone: existingUser.phone || "",
-              address: existingUser.address || "" 
+              address: existingUser.address || "",
             };
           }
         }
@@ -65,7 +79,6 @@ export const authOption = {
         });
       }
 
-      
       user.id = dbUser.id;
 
       return true;
@@ -74,7 +87,7 @@ export const authOption = {
     async jwt({ token, user, account }: any) {
       if (user) {
         token.user = {
-          id: user.id, 
+          id: user.id,
           email: user.email,
           name: user.name,
           image: user.image,
@@ -94,6 +107,6 @@ export const authOption = {
   },
 
   pages: {
-    signIn: '/signin'
-  }
+    signIn: "/signin",
+  },
 };

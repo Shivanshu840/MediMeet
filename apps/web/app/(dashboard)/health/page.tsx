@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import { getServerSession } from "next-auth/next";
 import { authOption } from "../../lib/action";
 import { redirect } from "next/navigation";

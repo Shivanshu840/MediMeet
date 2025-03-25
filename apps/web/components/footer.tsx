@@ -1,13 +1,17 @@
-import Link from "next/link"
-import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
-import { Button } from "@repo/ui/button"
+import Link from "next/link";
+import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { Button } from "@repo/ui/button";
 
 export default function Footer() {
   return (
     <footer className="bg-zinc-900">
       {/* Wavy line decoration */}
       <div className="w-full h-24 overflow-hidden">
-        <svg className="w-full" viewBox="0 0 1200 100" preserveAspectRatio="none">
+        <svg
+          className="w-full"
+          viewBox="0 0 1200 100"
+          preserveAspectRatio="none"
+        >
           <path
             d="M0,50 C200,20 400,80 600,50 C800,20 1000,80 1200,50"
             className="stroke-[3] stroke-current fill-none"
@@ -38,19 +42,31 @@ export default function Footer() {
           <div>
             <h3 className="text-xl text-white font-medium mb-4">Follow us</h3>
             <div className="flex gap-4">
-              <Link href="#" className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
+              <Link
+                href="#"
+                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
                 <Youtube className="w-5 h-5 text-white" />
                 <span className="sr-only">YouTube</span>
               </Link>
-              <Link href="#" className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
+              <Link
+                href="#"
+                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
                 <Facebook className="w-5 h-5 text-white" />
                 <span className="sr-only">Facebook</span>
               </Link>
-              <Link href="#" className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
+              <Link
+                href="#"
+                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
                 <Instagram className="w-5 h-5 text-white" />
                 <span className="sr-only">Instagram</span>
               </Link>
-              <Link href="#" className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
+              <Link
+                href="#"
+                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
                 <Linkedin className="w-5 h-5 text-white" />
                 <span className="sr-only">LinkedIn</span>
               </Link>
@@ -62,32 +78,50 @@ export default function Footer() {
             <h3 className="text-xl text-white font-medium mb-4">About us</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   About this site
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   Contacts
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   Locations
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   Media requests
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   News network
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-zinc-400 hover:text-white transition-colors">
+                <Link
+                  href="#"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
                   FAQ
                 </Link>
               </li>
@@ -96,10 +130,16 @@ export default function Footer() {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-4">
-            <Button variant="outline" className="bg-white text-zinc-900 hover:bg-zinc-100 border-0">
+            <Button
+              variant="outline"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 border-0"
+            >
               Find a doctor
             </Button>
-            <Button variant="outline" className="bg-white text-zinc-900 hover:bg-zinc-100 border-0">
+            <Button
+              variant="outline"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 border-0"
+            >
               Log in
             </Button>
           </div>
@@ -120,5 +160,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

@@ -1,13 +1,15 @@
-import React, { forwardRef } from 'react'
+import React, { forwardRef } from "react";
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string
-  error?: string
+interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label?: string;
+  error?: string;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, id, className = '', ...props }, ref) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`
+  ({ label, error, id, className = "", ...props }, ref) => {
+    const textareaId =
+      id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
 
     return (
       <div className="space-y-2">
@@ -28,19 +30,17 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             text-white placeholder-zinc-400
             focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
             disabled:opacity-50 disabled:cursor-not-allowed
-            ${error ? 'border-red-500 focus:ring-red-500' : ''}
+            ${error ? "border-red-500 focus:ring-red-500" : ""}
             ${className}
           `}
           {...props}
         />
-        {error && (
-          <p className="mt-1 text-xs text-red-500">{error}</p>
-        )}
+        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-Textarea.displayName = 'Textarea'
+Textarea.displayName = "Textarea";
 
-export default Textarea
+export default Textarea;

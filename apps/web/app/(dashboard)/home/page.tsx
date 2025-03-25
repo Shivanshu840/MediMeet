@@ -5,8 +5,6 @@ import Dashboard from "../../../components/dashboard";
 import prisma from "@repo/db/clients";
 import { Session } from "next-auth";
 
-
-
 export default async function DashboardPage() {
   const session: Session | null = await getServerSession(authOption);
 
@@ -20,7 +18,7 @@ export default async function DashboardPage() {
     where: {
       userId: user.id,
     },
-  })
+  });
 
   return (
     <>
