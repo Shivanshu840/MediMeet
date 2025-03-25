@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth/next";
 import { authOption } from "../../../lib/action";
 import prisma from "@repo/db/clients";
 import { InferenceClient } from "@huggingface/inference";
-const apiKEy = process.env.HUGGINGFACE_API_KEY
-const client = new InferenceClient(apiKEy);
+
+const apiKey = process.env.HUGGINGFACE_API_KEY;
+const client = new InferenceClient(apiKey);
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOption);
@@ -140,10 +141,10 @@ async function analyzeHealthData(healthData: any, userId: string) {
   }
 }
 
-export const generateAIEmailContent = async (healthData: string): Promise<string> => {
+// Make this function internal to the file, not exported
+async function generateAIEmailContent(healthData: string): Promise<string> {
   try {
-   
-      try {
+    try {
       const chatCompletion = await client.chatCompletion({
         model: "mistralai/Mistral-Nemo-Instruct-2407",
           
@@ -163,7 +164,7 @@ export const generateAIEmailContent = async (healthData: string): Promise<string
 
       return chatCompletion.choices[0]?.message.content || "Couldn't generate feedback.";
     } catch (apiError) {
-      console.error("❌ HuggingFace API Error:", apiError);
+      console.error("HuggingFace API Error:", apiError);
       
       if (apiError instanceof Error) {
         console.error("Error message:", apiError.message);
@@ -173,7 +174,7 @@ export const generateAIEmailContent = async (healthData: string): Promise<string
       return "We couldn't generate feedback at this moment. API error occurred.";
     }
   } catch (error) {
-    console.error("❌ Unexpected error in generateAIEmailContent:", error);
+    console.error("Unexpected error in generateAIEmailContent:", error);
     return "We couldn't generate feedback at this moment.";
   }
-};
+}
