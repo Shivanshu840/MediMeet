@@ -8,10 +8,15 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@repo/ui/button";
 import img from "../public/doctor.jpg";
+import Footer from "./footer";
 
 export default function LandingPage() {
   const { data: session } = useSession();
   const router = useRouter();
+
+  if(session?.user){
+    router.push("/home")
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800/90 to-emerald-900/40">
@@ -221,6 +226,7 @@ export default function LandingPage() {
           </section>
         </div>
       </main>
+       <Footer/>
     </div>
   );
 }

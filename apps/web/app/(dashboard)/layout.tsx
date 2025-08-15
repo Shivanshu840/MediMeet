@@ -1,3 +1,4 @@
+import Footer from "../../components/footer";
 import LeftBar from "../../components/sidebar";
 
 export default function RootLayout({
@@ -10,6 +11,7 @@ export default function RootLayout({
       <body>
         <LeftBar />
         <div className="flex flex-col">{children}</div>
+        <Footer />
       </body>
     </html>
   );

@@ -59,7 +59,7 @@ export default function HealthSuggestionCard() {
       );
 
       // You would typically update this in the database as well
-      // await fetch(`/api/auth/health-suggestion/${id}/read`, { method: 'POST' })
+      await fetch(`/api/auth/health-suggestion/${id}/read`, { method: 'POST' })
     } catch (err) {
       console.error("Error marking suggestion as read:", err);
       // Revert the optimistic update if it fails

@@ -1,10 +1,8 @@
 "use client";
-import { getServerSession } from "next-auth/next";
-import { authOption } from "../../lib/action";
 import { redirect } from "next/navigation";
 import HealthMonitor from "../../../components/health-monitor";
 import HealthAIInsights from "../../../components/health-ai-insights";
-import { ToastProvider } from "@repo/ui/use-toast"; // Import ToastProvider
+import { ToastProvider } from "@repo/ui/use-toast"; 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -18,7 +16,7 @@ export default function HealthPage() {
   }, [status]);
 
   if (status === "loading") {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
 
   if (status === "authenticated") {

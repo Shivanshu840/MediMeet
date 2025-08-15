@@ -4,6 +4,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "start": "turbo start",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
@@ -24,6 +25,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^3.6.1",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-avatar": "^1.1.1",

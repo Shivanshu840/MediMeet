@@ -63,15 +63,6 @@ export default function LeftBar() {
             variant="ghost"
             size="icon"
             className="text-zinc-400 w-full"
-            onClick={() => router.push("/")}
-          >
-            <Home className="h-5 w-5" />
-            <span className="ml-2 lg:hidden">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-zinc-400 w-full"
             onClick={() => router.push("./totalapp")}
           >
             <Calendar className="h-5 w-5" />

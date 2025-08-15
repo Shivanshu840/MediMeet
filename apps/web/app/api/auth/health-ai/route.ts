@@ -2,10 +2,16 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOption } from "../../../lib/action"
 import prisma from "@repo/db/clients"
-import { InferenceClient } from "@huggingface/inference"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
-const apiKey = process.env.HUGGINGFACE_API_KEY
-const client = new InferenceClient(apiKey)
+const geminiApiKey = process.env.GEMINI_API_KEY
+
+let genAI: GoogleGenerativeAI | null = null
+if (geminiApiKey) {
+  genAI = new GoogleGenerativeAI(geminiApiKey)
+} else {
+  console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables.")
+}
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOption)
@@ -61,13 +67,11 @@ export async function POST(req: Request) {
       },
     })
 
-    // Create a plain JavaScript object for bloodPressure
     const bloodPressureData = {
       systolic: body.bloodPressure?.systolic || 0,
       diastolic: body.bloodPressure?.diastolic || 0,
     }
 
-    // Create a plain JavaScript object for airQuality
     const airQualityData = body.airQuality || { aqi: 0 }
 
     if (!healthData) {
@@ -79,25 +83,21 @@ export async function POST(req: Request) {
           steps: body.steps || 0,
           heartRate: body.heartRate || 0,
           sleepTime: body.sleepTime || 0,
-          bloodPressure: bloodPressureData, // Plain JavaScript object
+          bloodPressure: bloodPressureData,
           temperature: body.temperature || 0,
-          airQuality: airQualityData, // Plain JavaScript object
+          airQuality: airQualityData,
         },
       })
     } else {
-      // Get existing bloodPressure data
       const existingBloodPressure = healthData.bloodPressure as any
 
-      // Create updated bloodPressure object as a plain JavaScript object
       const updatedBloodPressure = {
         systolic: body.bloodPressure?.systolic ?? existingBloodPressure?.systolic ?? 0,
         diastolic: body.bloodPressure?.diastolic ?? existingBloodPressure?.diastolic ?? 0,
       }
 
-      // Get existing airQuality data
       const existingAirQuality = healthData.airQuality as any
 
-      // Create updated airQuality object
       const updatedAirQuality = body.airQuality ?? existingAirQuality ?? { aqi: 0 }
 
       healthData = await prisma.health.update({
@@ -110,9 +110,9 @@ export async function POST(req: Request) {
           steps: body.steps ?? healthData.steps,
           heartRate: body.heartRate ?? healthData.heartRate,
           sleepTime: body.sleepTime ?? healthData.sleepTime,
-          bloodPressure: updatedBloodPressure, // Plain JavaScript object
+          bloodPressure: updatedBloodPressure,
           temperature: body.temperature ?? healthData.temperature,
-          airQuality: updatedAirQuality, // Plain JavaScript object
+          airQuality: updatedAirQuality,
         },
       })
     }
@@ -159,41 +159,27 @@ async function analyzeHealthData(healthData: any, userId: string) {
   }
 }
 
-// Make this function internal to the file, not exported
 async function generateAIEmailContent(healthData: string): Promise<string> {
+  if (!genAI) {
+    const errorMessage = "Generative AI client is not initialized. Check GEMINI_API_KEY."
+    console.error(errorMessage)
+    return `Error: ${errorMessage}`
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" })
+
+  const systemPrompt = "You are a professional health assistant. Provide brief, personalized health insights, exercise tips, and diet recommendations in English. Do not include greetings, subject lines, or bullet points. Respond in short, flowing sentences, and include relevant emojis. Keep the entire response under 50 words."
+  const userPrompt = `User's Health Data: ${healthData}. Extract key health metrics and provide concise personalized feedback, exercise tips, and diet recommendations in short, flowing sentences, and include emojis.`
+  
+  const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
+
   try {
-    try {
-      const chatCompletion = await client.chatCompletion({
-        model: "mistralai/Mistral-Nemo-Instruct-2407",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a professional health assistant. Provide brief, personalized health insights, exercise tips, and diet recommendations in English. Do not include greetings, subject lines, or bullet points. Respond in short, flowing sentences, and include relevant emojis. Keep the entire response under 50 words.",
-          },
-          {
-            role: "user",
-            content: `User's Health Data: ${healthData}. Extract key health metrics and provide concise personalized feedback, exercise tips, and diet recommendations in short, flowing sentences, and include emojis.`,
-          },
-        ],
-        provider: "hf-inference",
-        max_tokens: 500,
-      })
-
-      return chatCompletion.choices[0]?.message.content || "Couldn't generate feedback."
-    } catch (apiError) {
-      console.error("HuggingFace API Error:", apiError)
-
-      if (apiError instanceof Error) {
-        console.error("Error message:", apiError.message)
-        console.error("Error stack:", apiError.stack)
-      }
-
-      return "We couldn't generate feedback at this moment. API error occurred."
-    }
+    const result = await model.generateContent(fullPrompt)
+    const response = result.response
+    const text = response.text()
+    return text || "Couldn't generate feedback."
   } catch (error) {
     console.error("Unexpected error in generateAIEmailContent:", error)
     return "We couldn't generate feedback at this moment."
   }
 }
-
